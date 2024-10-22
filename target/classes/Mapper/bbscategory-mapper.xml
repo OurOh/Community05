@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="net.musecom.community.mapper.BbsCategoryMapper">
+
+	<select id="selectCategoryByBbsId" parameterType="int" resultType="BbsCategory">
+		select * from category where bbsid=#{bbsId} order by categorynum;
+	</select>
+
+<select id ="selectMaxCategorynum" parameterType="int" resultType="int">
+	select coalesce(Max(categorynum), 0) from category WHERE bbsid =#{bbsid}
+	
+</select>
+
+
+	<insert id="insertCategory" parameterType="BbsCategory">
+		insert into category
+		(bbsid, categorytext, categorynum)
+		values
+		(#{bbsid}, #{categorytext}, #{categorynum})
+	</insert>
+
+<update id="updateCategroy" parameterType="BbsCategory">
+	UPDATE category SET
+		categorytext = #{categorytext},
+		categorynum = #{categorynum}
+	where
+	  id = #{id}	
+</update>
+
+	<insert id="insertCategory" parameterType="BbsCategory">
+	  insert into category
+	   (bbsid, categorytext, categorynum)
+	   select #{bbsid}, #{categorytext}, coalesce(Max(categorynum), 0) + 1
+	   FROM category
+	   where bbsid - #{bbsid}
+	
+	</insert>
+
+
+</mapper>
+  

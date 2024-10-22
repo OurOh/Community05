@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css');
+body{
+    margin:0;
+    font-size:16px;
+    font-family: "Noto Sans KR", sans-serif;
+    background-color:#eff2f6;
+}
+
+@media (min-width: 1200px){
+	.container.
+}

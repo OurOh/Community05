@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans 
+	xmlns ="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	    http://www.springframework.org/schema/security 
+	    http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- http 설정 -->	               
+	<http auto-config="true" use-expressions="true">
+	   <intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
+	   <intercept-url pattern="/member/**" access="hasAnyRole('ADMIN', 'USER')" />
+	   <intercept-url pattern="/**" access="permitAll" />
+	   <form-login 
+	         login-page="/login" 
+	         default-target-url="/" 
+	         authentication-failure-url="/?error=error" 
+             username-parameter="userid"
+             password-parameter="userpass"
+	   />
+	   <logout logout-url="/logout" logout-success-url="/?logout=logout" />
+	   <csrf />
+	</http>
+	
+	<!-- bcrypt 비밀번호 암호화기 설정 -->
+	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+	
+	<!-- 사용자 정의 UserDetailsService -->
+	<beans:bean id="customUserDetailService" class="net.musecom.community.service.CustomUserDetailService" />
+	
+	<!-- Authentication 메니저 설정 -->	    
+	<authentication-manager>
+	   <!-- customUserDetailService를 사용하는 provider -->
+	   <authentication-provider user-service-ref="customUserDetailService">
+	     <password-encoder ref="passwordEncoder" /> 
+	   </authentication-provider>
+
+	   <!-- 기본 사용자 추가 설정 (customUserDetailService가 실패할 경우 이 사용자를 사용) -->
+	   <authentication-provider>
+	       <user-service>
+	           <user name="user" password="{noop}password" authorities="ROLE_USER"/>
+	       </user-service>
+	   </authentication-provider>
+	</authentication-manager>
+	
+</beans:beans>

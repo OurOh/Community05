@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+
+  <!-- 회원 -->
+  <definition name="member.*" template="/WEB-INF/views/layouts/layout.jsp">
+      <put-attribute name="title" value="Tiles tutorial homepage" />
+      <put-attribute name="header" value="/WEB-INF/views/include/header.jsp" />
+      <put-attribute name="aside" value="/WEB-INF/views/include/aside.jsp" />
+      <put-attribute name="body" value="/WEB-INF/views/member/{1}.jsp" />
+      <put-attribute name="footer" value="/WEB-INF/views/include/footer.jsp" />
+  </definition>
+  
+  <!-- 관리자 -->
+  <definition name="admin.*" template="/WEB-INF/views/layouts/layout_admin.jsp">
+      <put-attribute name="title" value="Tiles tutorial homepage" />
+      <put-attribute name="header" value="/WEB-INF/views/include/header.jsp" />
+      <put-attribute name="aside" value="/WEB-INF/views/include/aside.jsp" />
+      <put-attribute name="body" value="/WEB-INF/views/admin/{1}.jsp" />
+      <put-attribute name="footer" value="/WEB-INF/views/include/footer.jsp" />
+  </definition>
+  
+  <!-- 일반 -->
+  <definition name="*" template="/WEB-INF/views/layouts/layout.jsp">
+    <put-attribute name="title" value="Tiles tutorial homepage" />
+    <put-attribute name="header" value="/WEB-INF/views/include/header.jsp" />
+    <put-attribute name="aside" value="/WEB-INF/views/include/aside.jsp" />
+    <put-attribute name="body" value="/WEB-INF/views/{1}.jsp" />
+    <put-attribute name="footer" value="/WEB-INF/views/include/footer.jsp" />
+  </definition>
+</tiles-definitions>

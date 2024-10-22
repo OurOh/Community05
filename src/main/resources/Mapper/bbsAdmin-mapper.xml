@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.musecom.comunity.mapper.BbsAdminMapper">
+  <select id="selectById" parameterType="int" resultType="net.musecom.comunity.model.BbsAdmin">
+     SELECT * FROM bbs_admin WHERE id = #{id}
+  </select>
+  
+  <select id="selectList" resultType="BbsAdmin">
+     SELECT * FROM bbs_admin order by id desc;
+  </select>
+  
+  <insert id="insertBbsAdmin" parameterType="net.musecom.comunity.model.BbsAdmin">
+     insert into bbs_admin
+     (bbstitle)
+     values
+     (#{bbstitle}) 
+  </insert>
+
+  <update id="updateBbsAdmin" parameterType="net.musecom.comunity.model.BbsAdmin">
+    UPDATE bbs_admin
+    SET
+        bbstitle = #{bbstitle},
+        skin = #{skin},
+        category = #{category},
+        listcount = #{listcount},
+        pagecount = #{pagecount},
+        lgrade = #{lgrade},
+        rgrade = #{rgrade},
+        fgrade = #{fgrade},
+        regrade = #{regrade},
+        comgrade = #{comgrade},
+        filesize = #{filesize},
+        allfilesize = #{allfilesize},
+        thimgsize = #{thimgsize},
+        imgsize = #{imgsize}
+    WHERE id = #{id}
+  </update>
+ 
+  <delete id="deleteBbsAdmin" parameterType="int">
+     DELETE from bbs_admin where id = #{id}
+  </delete>
+</mapper>
