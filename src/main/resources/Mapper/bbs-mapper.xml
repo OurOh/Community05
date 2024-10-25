@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.musecom.community.mapper.BbsMapper">
+
+<!-- 게시물 삽입 -->
+<insert id="insertBbs" parameterType="bbs" useGenerateKeys="true" keyProperty="id">
+	INSERT INTO bbs (bbsid, ref, title, writer, pssword, userid, content, sec, category) 
+	VALUES (
+		#{bbsid}, #{id}, #{title}, #{writer}, #{password}, #{userid}, #{content}, #{sec}, #{category}
+	)
+</insert>
+<!--  답글 삽입 -->
+
+<!--  게시물 수정 -->
+
+<!--  게시물 삭제 -->
+
+<!--  전체 목록 갯수 조회 -->
+	<select id="selectBbs" parameterType="int" resultType="int">
+		SELECT count(*) FROM bbs where bbsid=#{bbsid}
+	</select>
+	
+<!-- 게시물 페이지에 따른 조회 -->
+<select id="selectBbs" parameterType="int" resultType="bbs">
+	SELECT * FROM bbs
+	WHERE bbsid=#{bbsid}
+	ORDER BY ref DESC, step ASC
+	LIMIT #{page}
+
+</select>
+
+
+
+<!-- 검색 조회 -->
+<select id="selectBbs" parameterType="map" resultType="bbs">
+	SELECT * FROM bbs
+	WHERE bbsid =#{bbsid} AND #{key} LIKE CONCAT('%', #{val}, '%')
+	ORDER BY ref DESC, step ASC
+	LIMIT #{page}, #{recordsPerPage}
+</select>
+
+
+
+<!-- 상세 조회 -->
+
+
+
+
+</mapper>

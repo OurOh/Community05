@@ -64,9 +64,10 @@ public class AdminController {
 	@GetMapping("/write")
 	public String noticeWrite(Model model) {
 		//System.out.println("list" + categoryMapper.selectCategoryByBbsId(1));
-		//model.addAttribute("categories", categoryMapper.selectCategoryByBbsId(1));
+		model.addAttribute("categories", categoryMapper.selectCategoryByBbsId(1));
 		return "admin.write";
 	}
+	
 	
 	@PostMapping("/edtBbsAdmin")
 	@ResponseBody

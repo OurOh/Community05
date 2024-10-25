@@ -35,6 +35,10 @@
        <textarea name="content" id="content"></textarea>
     </div>
     <div class="col-12 text-center  py-2 my-2">
+    	<input type="hidden" name = "bbsid" value="1"/>
+    	<input type="hidden" name = "writer" value="운영자"/>
+    	<input type="hidden" name = "password" value="admin"/>
+    	<input type="hidden" name = "userid" value="0"/>
        <button type="reset" class="btn btn-danger me-3"> 취 소 </button>
        <button type="submit" class="btn btn-primary ms-3"> 전 송 </button>
     </div>

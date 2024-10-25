@@ -5,28 +5,28 @@
 <script src="/comunity/res/js/jquery-ui.min.js"></script>
 <script>
   $(function(){
-	 ${script} 
-	 
-	 $("button[id^='edit']").click(function(){
-		const tr = $(this).closest("tr");
+    ${script} 
+    
+    $("button[id^='edit']").click(function(){
+      const tr = $(this).closest("tr");
         const id = tr.find("input[name='id']").val();
-		const bbstitle = tr.find("input[name='bbstitle']").val();
+      const bbstitle = tr.find("input[name='bbstitle']").val();
         const skin = tr.find("select[name='skin']").val();
-		const category = tr.find("select[name='category']").val();
+      const category = tr.find("select[name='category']").val();
         const listcount = tr.find("input[name='listcount']").val();
-		const pagecount = tr.find("input[name='pagecount']").val();
+      const pagecount = tr.find("input[name='pagecount']").val();
         const lgrade = tr.find("select[name='lgrade']").val();
-		const rgrade = tr.find("select[name='rgrade']").val();
+      const rgrade = tr.find("select[name='rgrade']").val();
         const fgrade = tr.find("select[name='fgrade']").val();
-		const regrade = tr.find("select[name='regrade']").val();
+      const regrade = tr.find("select[name='regrade']").val();
         const comgrade = tr.find("select[name='comgrade']").val();
 
         $.ajax({
-        	url: "/comunity/admin/edtBbsAdmin",
-        	method: "post",
-        	data: {
-        		id,
-        		bbstitle,
+           url: "/comunity/admin/edtBbsAdmin",
+           method: "post",
+           data: {
+              id,
+              bbstitle,
                 skin,
                 category,
                 listcount,
@@ -37,59 +37,122 @@
                 regrade,
                 comgrade,
                 ${_csrf.parameterName} : "${_csrf.token}"
-        	},
-        	success: function(res){
-        		if(res == 1) {
-        			alert("수정이 완료되었습니다.");
-        		}else{
-        			alert("문제가 발생했습니다. 다시 시도하세요.");       		    
-        		}
-    			location.reload(true);
-        	},
-        	error: function(xhr, status, error) {
-        		alert("문제가 발생했습니다. 다시 시도하세요." + error);     
-        	}
+           },
+           success: function(res){
+              if(res == 1) {
+                 alert("수정이 완료되었습니다.");
+              }else{
+                 alert("문제가 발생했습니다. 다시 시도하세요.");                 
+              }
+             location.reload(true);
+           },
+           error: function(xhr, status, error) {
+              alert("문제가 발생했습니다. 다시 시도하세요." + error);     
+           }
         }); 
 
-	 });
-	 
-	 
-	 $( ".sortable" ).sortable();
-	 
-	 $(".addCate").click(function(){
-		 const form = $(this).closest("form");
-		 const bbsid = form.find('input[name="bbsid"]').val();
-		 const categorytext = form.find('input[name="categorytext"]').val();
-		 
-		 const data = {
-			   bbsid: bbsid,
-			   categorytext : categorytext,
-		 };
-		 
-		 $.ajax({
-			type: "POST",
-			contentType: "application/json;charset=utf-8",
-			url: "/comunity/admin/addCategory?${_csrf.parameterName}=${_csrf.token}",
-			data: JSON.stringify(data),
-			success: function(res){
-				if(res){
-					alert("카테고리가 등록 되었습니다.");
-					//색각중 
-				}else{
-					alert("문제가 발생했습니다.");
-				}
-			},
-			error: function(error){
-				alert("문제가 발생했다구요!!!");
-			}
-		 });
-		 
-	 });
-	 
-	 $(".delCate").click(function(){
-		 const deleteId
-	 });
-	 
+    });
+    
+    
+    $( ".sortable" ).sortable();
+    
+    $(".addCate").click(function(){
+       const form = $(this).closest("form");
+       const bbsid = form.find('input[name="bbsid"]').val();
+       const categorytext = form.find('input[name="categorytext"]').val();
+       const data = {
+            bbsid: bbsid,
+            categorytext : categorytext,
+       };
+       
+       $.ajax({
+         type: "POST",
+         contentType: "application/json;charset=utf-8",
+         url: "/comunity/admin/addCategory?${_csrf.parameterName}=${_csrf.token}",
+         data: JSON.stringify(data),
+         success: function(res){
+            if(res){
+               alert("카테고리가 등록 되었습니다.");
+               //색각중 
+               const newList = `     
+                        <li class="ui-state-default d-flex">
+                           <div class="col-9">  
+                               <input type="text" name="categorytext[]" value="${categorytext }" 
+                                 class="form-control categoryList">
+                               <input type="hidden" name="bbsid[]" value="${categoryList.bbsid }" />
+                               <input type="hidden" name="id[]" value="${categoryList.id }" />       
+                           </div>
+                           <div class="col-3">
+                              <button type="button" class="categoryDelete btn btn-danger btn-sm delCate">삭제</button> 
+                           </div>        
+                          </li>`;
+               $('.sortable').append(newList);
+            }else{
+               alert("문제가 발생했습니다.");
+            }
+         },
+         error: function(error){
+            alert("문제가 발생했다구요!!!");
+         }
+       });
+       
+    });
+    
+    $(".categoryDelete").click(function(){
+       const deleteId = $(this).data("deleteid");
+       if(confirm("정말로 삭제하시겠습니까?")){
+         $.post("/comunity/admin/delCategory?${_csrf.parameterName}=${_csrf.token}&id="+deleteId, function(data){
+            if(data){
+               alert("삭제되었습니다.");
+               location.reload();
+            }else{
+               alert("문제가 발생했습니다.");
+            }
+         })   
+       }
+    });
+    
+    $('.categoryEdit').click(function(){
+          const bbsId = $(this).data("bbsid");
+         let formData = [];
+         let categorytext;
+         let bbsid;
+         let id;
+         
+         //.sortable 의 li를 루프로 돌리면서 데이터 수집
+         $('ul.sortable#sortable_'+bbsId+' li').each(function(index){
+            categorytext = $(this).find("input[name='categorytext[]']").val();
+            bbsid = $(this).find('input[name="bbsid[]"]').val();
+            id=$(this).find('input[name="id[]"]').val();
+            formData.push({
+               id: id,
+               bbsid: bbsid,
+               categorytext: categorytext,
+               categorynum: index + 1
+            });
+         });      
+
+         $.ajax({
+            type: "POST",
+             url: '/comunity/admin/editCategory?${_csrf.parameterName}=${_csrf.token}',
+             contentType: 'application/json;charset=UTF-8',
+             data: JSON.stringify(formData),
+             success: function(res) {
+                if(res == 1) {
+                   alert("카테고리가 수정되었습니다.");
+                   location.reload();
+                }else{
+                   alert('수정 중 문제가 발생했습니다.');
+                }
+             },
+             error: function(error) {
+                alert("오류가 발생했습니다.");
+             }
+         });
+      
+       });
+    
+    
   });
 </script>
 <h1 class="text-center mb-4">관리자 모드</h1>
@@ -141,42 +204,40 @@
                           <div class="modal-body"> 
                             <form>
                              <input type="hidden" name="bbsid" value="${list.id }" />
-								<div class="input-group mb-3">
-								  <input type="text" 
-								         name="categorytext" 
-								         class="form-control" 
-								         placeholder="카테고리 이름" 
-								         style="max-width:100%">
-								  <div class="input-group-append">
-								     <button class="btn btn-danger" type="reset">Cancel</button>
-								     <button class="btn btn-primary addCate" type="button">카테고리등록</button>
-								  </div>
-								</div> 
-						    </form>
-						    
-						    <form>					        
-<ul class="sortable">
+                        <div class="input-group mb-3">
+                          <input type="text" 
+                                 name="categorytext" 
+                                 class="form-control" 
+                                 placeholder="카테고리 이름" 
+                                 style="max-width:100%">
+                          <div class="input-group-append">
+                             <button class="btn btn-danger" type="reset">Cancel</button>
+                             <button class="btn btn-primary addCate" type="button">카테고리등록</button>
+                          </div>
+                        </div> 
+                      </form>
+                      
+                      <form name="edtform" action="/comuinity/editCategory" id="edtform_${bbsid }" method="post">                       
+<ul class="sortable" id="sortable_${list.id }">
  <c:if test="${not empty list.bbsCategory }">
   <c:forEach items="${list.bbsCategory}" var="categoryList">
      <li class="ui-state-default d-flex">
-       <div class="col-1">
-         ${categoryList.categorynum }
-       </div>
-       <div class="col-8">  
+       <div class="col-9">  
         <input type="text" name="categorytext[]" value="${categoryList.categorytext }" 
                class="form-control categoryList">
         <input type="hidden" name="bbsid[]" value="${categoryList.bbsid }" />
         <input type="hidden" name="id[]" value="${categoryList.id }" />       
        </div>
        <div class="col-3">
-          <button type="button" class="categoryDelete btn btn-danger btn-sm delCate">삭제</button> 
+          <button type="button" data-deleteid="${categoryList.id }" class="categoryDelete btn btn-danger btn-sm">삭제</button> 
        </div>        
      </li>
   </c:forEach>
 </c:if>  
 </ul>
-       <button type="button" class="categoryEdit btn btn-warning btn-sm editCate">수정</button> 
-						    </form>
+       <button type="button" data-bbsid="${list.id }" class="categoryEdit btn btn-warning btn-sm">수정</button> 
+       
+                      </form>
                           </div>
                           
                           <div class="modal-footer">
