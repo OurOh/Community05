@@ -20,8 +20,6 @@ public class BbsAdmin {
   private int filesize;
   private int allfilesize;
   private String thimgsize;
-  private String imgsize;
+  private String filechar;  //업로드 확장자 배열 ,로 구분
   private List<BbsCategory> bbsCategory;
 }
-
-

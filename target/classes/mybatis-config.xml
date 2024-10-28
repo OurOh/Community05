@@ -12,7 +12,7 @@
   </settings>
   <!--  별칭등록 -->
   <typeAliases>
-     <package name="net.musecom.community.model"/>
+     <typeAlias alias = "bbsAdmin" type="net.musecom.community.model."
   </typeAliases>
   <!-- 
   <mappers>
