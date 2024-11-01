@@ -12,13 +12,12 @@
   </settings>
   <!--  별칭등록 -->
   <typeAliases>
-     <typeAlias alias = "bbsAdmin" type="net.musecom.community.model."
+	  <typeAlias alias="bbsAdmin" type="net.musecom.community.model.BbsAdmin" />
+	  <typeAlias alias="bbsCategory" type="net.musecom.community.model.BbsCategory" />
+	  <typeAlias alias="bbs" type="net.musecom.community.model.Bbs" />
+	  <typeAlias alias="member" type="net.musecom.community.model.Member" />
+	  <typeAlias alias="memberRole" type="net.musecom.community.model.MemberRole" />
+	  <typeAlias alias="fileDto" type="net.musecom.community.model.FileDto" />
   </typeAliases>
-  <!-- 
-  <mappers>
-    <mapper resource="org/mybatis/example/BlogMapper.xml"/>
-  </mappers>
-  -->
-  
   
 </configuration>

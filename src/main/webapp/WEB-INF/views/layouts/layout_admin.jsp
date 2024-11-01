@@ -3,17 +3,36 @@
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>    
 <!DOCTYPE html>
 <html>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
     <title><tiles:getAsString name="title"/></title>
+    <link rel="stylesheet" href="/community/res/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/community/res/css/style.css" />
+    <link rel="stylesheet" href="/community/res/admin/css/style.css" />
+    
+    <!-- script -->
+    <script src="/community/res/js/jquery.min.js"></script>
+    <script src="/community/res/js/popper.min.js"></script>
+    <script src="/community/res/js/bootstrap.min.js"></script>
+    <script src="/community/res/js/regex.js"></script>
+    <script src="/community/res/js/script.js"></script>
   </head>
   <body>
-        <table>
-      <tr>
-        <td>
-          <tiles:insertAttribute name="body" />
-        </td>
-      </tr>
-    </table>
+     <div class="container"> 
+        <div class="bg-white rounded p-3">      
+           <tiles:insertAttribute name="header" />
+        </div>   
+        <div class="row">
+           <div class="col-md-12 col-12 mt-3">
+              <div class="bg-white rounded p-3">
+                  <tiles:insertAttribute name="body" />
+              </div>
+           </div>
+        </div> 
+        <div class="bg-white rounded p-3 mt-3">  
+          <tiles:insertAttribute name="footer" />
+        </div>  
+     </div>  
   </body>
 </html>

@@ -24,11 +24,4 @@
       </tr>
       <input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }" />
    </table>
-   
-   
-   
-   <!--   https://kauth.kakao.com/oauth/authorize?client_id=8a6f7c20d5408fbc4fdfe933b6297b05&redirect_uri=http://localhost:8080/kakaoLogin    -->
-   
-   
-   
 </form>

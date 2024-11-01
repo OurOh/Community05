@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<link rel="stylesheet" href="/comunity/res/css/jquery-ui.min.css" />
-<script src="/comunity/res/js/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/community/res/css/jquery-ui.min.css" />
+<script src="/community/res/js/jquery-ui.min.js"></script>
 <script>
   $(function(){
     ${script} 
@@ -22,7 +22,7 @@
         const comgrade = tr.find("select[name='comgrade']").val();
 
         $.ajax({
-           url: "/comunity/admin/edtBbsAdmin",
+           url: "/community/admin/edtBbsAdmin",
            method: "post",
            data: {
               id,
@@ -68,7 +68,7 @@
        $.ajax({
          type: "POST",
          contentType: "application/json;charset=utf-8",
-         url: "/comunity/admin/addCategory?${_csrf.parameterName}=${_csrf.token}",
+         url: "/community/admin/addCategory?${_csrf.parameterName}=${_csrf.token}",
          data: JSON.stringify(data),
          success: function(res){
             if(res){
@@ -101,7 +101,7 @@
     $(".categoryDelete").click(function(){
        const deleteId = $(this).data("deleteid");
        if(confirm("정말로 삭제하시겠습니까?")){
-         $.post("/comunity/admin/delCategory?${_csrf.parameterName}=${_csrf.token}&id="+deleteId, function(data){
+         $.post("/community/admin/delCategory?${_csrf.parameterName}=${_csrf.token}&id="+deleteId, function(data){
             if(data){
                alert("삭제되었습니다.");
                location.reload();
@@ -134,7 +134,7 @@
 
          $.ajax({
             type: "POST",
-             url: '/comunity/admin/editCategory?${_csrf.parameterName}=${_csrf.token}',
+             url: '/community/admin/editCategory?${_csrf.parameterName}=${_csrf.token}',
              contentType: 'application/json;charset=UTF-8',
              data: JSON.stringify(formData),
              success: function(res) {

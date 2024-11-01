@@ -8,7 +8,7 @@
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
-		<java-version>11</java-version>
+		<java-version>1.6</java-version>
 		<org.springframework-version>5.2.25.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
@@ -39,10 +39,6 @@
 		    <version>${org.springframework-version}</version>
 		</dependency>
 
-
-
-
-
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
 		<dependency>
 		    <groupId>org.springframework.security</groupId>
@@ -64,9 +60,11 @@
 		    <version>5.4.11</version>
 		</dependency>
 
-
-
-
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		    <version>2.12.3</version> 
+		</dependency>
 
 
 		<dependency>
@@ -126,6 +124,13 @@
 		    <artifactId>tiles-servlet</artifactId>
 		    <version>3.0.8</version>
 		</dependency>			
+				
+	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-core</artifactId>
+		    <version>2.18.0</version>
+		</dependency>
 				
 		<!-- AspectJ -->
 		<dependency>
@@ -209,24 +214,7 @@
 			<artifactId>junit</artifactId>
 			<version>4.7</version>
 			<scope>test</scope>
-		</dependency>  
-		
-<!-- 카카오 관련 의존성 추가 -->		
-		<dependency>
-		    <groupId>org.springframework</groupId>
-		    <artifactId>spring-web</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		</dependency>
-		
-		
-		
-		
-		
-		
-		      
+		</dependency>        
 	</dependencies>
     <build>
         <plugins>

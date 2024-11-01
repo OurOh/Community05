@@ -63,11 +63,11 @@ public class AdminController {
 	
 	@GetMapping("/write")
 	public String noticeWrite(Model model) {
+		
 		//System.out.println("list" + categoryMapper.selectCategoryByBbsId(1));
-		model.addAttribute("categories", bbsadminserver.selectCategoryByBbsId(1));
+		model.addAttribute("categories", bbsAdminService.getBbsCategoryById(1));
 		return "admin.write";
 	}
-	
 	
 	@PostMapping("/edtBbsAdmin")
 	@ResponseBody
@@ -103,6 +103,29 @@ public class AdminController {
 		return result;
 	}
 	
+	//파일수정
+	@PostMapping("/editfile")
+	@ResponseBody
+	public String eidtFile(
+		@RequestParam("bbsid") int id,
+		@RequestParam("filesize") int filesize,
+		@RequestParam("allfilesize") int allfilesize,
+		@RequestParam("fwidth") String fwidth,
+		@RequestParam("fheight") String fheight,
+		@RequestParam("filechar") String filechar) {
+		
+		BbsAdmin bbsAdmin = new BbsAdmin();
+		bbsAdmin.setId(id);
+		bbsAdmin.setFilesize(filesize);
+		bbsAdmin.setAllfilesize(allfilesize);
+		bbsAdmin.setThimgsize(fwidth+"|"+fheight);
+		bbsAdmin.setFilechar(filechar);
+		
+		int result = bbsAdminMapper.fileUpdateBbsAdmin(bbsAdmin);
+		String res = result > 0 ? "1" : "0";
+		return res;
+	}
+	
 	
 	//카테고리 추가 삭제 수정
 	@PostMapping("/addCategory")
@@ -114,16 +137,14 @@ public class AdminController {
 		return res;
 	}
 	
-	//추후
 	@PostMapping("/editCategory")
 	@ResponseBody
 	public String editCategory(@RequestBody List<BbsCategory> categories) {
 		int result = 0;
 		try {
-			for(int i = 1; i <= categories.size(); i++) {
-				BbsCategory category = categories.get(i);
-				category.setCategorynum(i);
-				result = bbsAdminService.bbsCategoryUpdate(category);
+			for(BbsCategory category : categories) {
+				//System.out.println(category);
+			    result = bbsAdminService.bbsCategoryUpdate(category);
 			}
 		}catch(Exception e) {
 			result = 0;
