@@ -23,6 +23,8 @@
 	   />
 	   <logout logout-url="/logout" logout-success-url="/?logout=logout" />
 	   <csrf />
+	   <!-- 특정 폼은 csrf 보호에서 제외함 -->
+	   <csrf-request-matcher-negated pattern="/searchForm" />
 	</http>
 	
 	<!-- bcrypt 비밀번호 암호화기 설정 -->

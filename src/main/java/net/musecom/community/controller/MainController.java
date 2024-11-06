@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.musecom.community.dao.MemberDao;
+import net.musecom.community.model.FileDto;
 import net.musecom.community.model.Member;
 import net.musecom.community.model.MemberRole;
 import net.musecom.community.service.ClientIpAddress;
@@ -32,6 +33,8 @@ public class MainController {
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+	
+	private FileDto fileDto = new FileDto();
 	
 	@GetMapping("/register")
 	public String Register(Model model) {
@@ -82,14 +85,14 @@ public class MainController {
 		if(userimg != null && !userimg.isEmpty()) {
 			try {
 			 
-			  fileUpload.setAbsolutePath("members");  //���ϰ�μ���
+			  fileUpload.setAbsolutePath("members"); 
 			  String[] exts = {"jpg", "gif", "png"};
-			  fileUpload.setAllowedExt(exts); //����ϴ� Ȯ���� ����
-			  long maxSize = 1 * 1024 * 1024; //�ִ� 1�ް�
+			  fileUpload.setAllowedExt(exts); 
+			  long maxSize = 1 * 1024 * 1024; 
 			  fileUpload.setMaxSize(maxSize);
-			  String[] fnames = fileUpload.uploadFile(userimg);
-			  dto.setOruserimg(fnames[0]);
-			  dto.setUserimg(fnames[1]);
+			  fileDto = fileUpload.uploadFile(userimg);
+			  dto.setOruserimg(fileDto.getOrfilename());
+			  dto.setUserimg(fileDto.getNewfilename());
 			  
 			}catch(Exception e) {
 				redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -113,14 +116,14 @@ public class MainController {
 		return "redirect:/";
 	}
 	
-	@GetMapping("/login")
-   public String LoginForm(@RequestParam(value="error", required=false) String error, Model model) {
-		if(error != null) {
-		model.addAttribute("errorMessage", "아이디 또는 비밀번호가 틀렸습니다.");
-		}
-		return "login";
-	}
-
+//	@GetMapping("/login")
+//    public String LoginForm(@RequestParam(value="error", required=false) String error, Model model) {
+//		if(error != null) {
+//			model.addAttribute("errorMessage", "아이디 또는 비밀번호가 틀렸습니다.");
+//		}
+//		return "login";
+//	}
+//	
 	
 	@GetMapping("/member")
 	public String memberIndex(Model model) {

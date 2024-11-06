@@ -1,6 +1,7 @@
 package net.musecom.community.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class FileService {
 	@Autowired
 	private FileUploadService fileUploadService;
 	
-	public long uploadFile(
+	public FileDto uploadFile(
 			MultipartFile file, 
 			String path, 
 			String[] exts,
@@ -31,11 +32,19 @@ public class FileService {
 	   //db ¿˙¿Â
 	   fileMapper.insertFile(fileDto);
 	   
-	   return fileDto.getId();
+	   return fileDto;
 	}
 	
-//	public void updateFileWithBbsId(fileId, bbsid) {
-//		
-//	}
+    public List<String> selectFileWithBbsIdZero() {
+    	return fileMapper.selectTrashFile();
+    }
+    
+    public void deleteFileWithBbsIdZero() {
+    	fileMapper.deleteTrashFile();
+    }
 	
+    public List<FileDto> getFilesByBbsId(long bbsid) {
+    	return fileMapper.selectFileByBbsId(bbsid);
+    }
+    
 }

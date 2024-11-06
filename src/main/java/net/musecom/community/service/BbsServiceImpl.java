@@ -1,94 +1,51 @@
-package net.musecom.kdtcom.controller;
+package net.musecom.community.service;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Service;
 
-import net.musecom.community.dao.MemberDao;
-import net.musecom.kdtcom.model.MemberDto;
+import net.musecom.community.mapper.BbsMapper;
+import net.musecom.community.mapper.FileMapper;
+import net.musecom.community.model.Bbs;
 
-@Controller
-public class MainController {
-  
-  @Autowired	
-  private FileUploadService fileUpload;	
-
-  @Autowired
-  private ClientIpAddress clientIpAddress;
-  
-  @Autowired
-  private BCryptPasswordEncoder passwordEncoder;
-  
-  @Autowired
-  private MemberDao dao;
-  
-  @GetMapping("/")
-  public String main() {
-	  return "kdtcom.index";
-  }
-  
-  @GetMapping("/register")
-  public String register() {
-	  return "kdtcom.register";
-  }
-  
-  @PostMapping("/register")
-  public String fomrRegister(
-		  @RequestParam("userid") String userid,
-		  @RequestParam("userpass") String noopUserpass,
-		  @RequestParam("username") String username,
-		  @RequestParam("useremail") String useremail,
-		  @RequestParam("usertel") String usertel,
-		  @RequestParam("zipcode") int zipcode,
-		  @RequestParam("address") String address,
-		  @RequestParam("detail_address") String detail_address,
-		  @RequestParam("extra_address") String extra_address,
-		  @RequestParam("userprofile") String userprofile,
-		  @RequestParam(value="userimg", required=false) MultipartFile userimg, 
-		  HttpServletRequest request,
-		  Model model) {
-
-	      MemberDto dto = new MemberDto();
-	       //아이피 주소 얻기
-	      clientIpAddress.setClientIpAddress(request);
-	      String userip = clientIpAddress.getClientIpAddress();
-	      
-	      //비밀번호 암호화
-          String userpass = passwordEncoder.encode(noopUserpass);
-          
-          dto.setUserid(userid);
-          dto.setUserpass(userpass);
-          dto.setUsername(username);
-          dto.setUseremail(useremail);
-          dto.setUsertel(usertel);
-          dto.setZipcode(zipcode);
-          dto.setAddress(address);
-          dto.setDetail_address(detail_address);
-          dto.setExtra_address(extra_address);
-          dto.setUserprofile(userprofile);
-          dto.setUserip(userip);
-          
-	try {
-		//업로드 처리
-		if(userimg != null && !userimg.isEmpty()) {
-		  fileUpload.setAbsolutePath("members");
-		  String[] exts = {"jpg", "gif", "png"};
-		  fileUpload.setAllowedExt(exts);
-		  String imgname = fileUpload.uploadFile(userimg);
-		  dto.setUserimg(imgname);		  
+@Service
+public class BbsServiceImpl implements BbsService {
+	
+	@Autowired
+	private BbsMapper bbsMapper;
+	
+	@Autowired
+	private FileMapper fileMapper;
+	
+	@Override
+	public void getBbsInsert(Bbs bbs, List<Long> fileIds) {
+		bbsMapper.insertBbs(bbs);
+		long bId = bbs.getId();
+		bbsMapper.refUpdateById(bId, bId);
+		System.out.println("게시물 아이디: " + bId);
+		for (Long fileId : fileIds) {
+			System.out.println(fileId);
+			fileMapper.updateFileByBbsId(bId, fileId);
 		}
-	}catch(Exception e) {
-		model.addAttribute("error", "file upload failed: " + e.getMessage());
 	}
-	      dao.insertMem(dto);
-	      
-    return "kdtcom.index";
-  }
+
+	@Override
+	public int getBbsCount(int bbsid) {
+		
+		return bbsMapper.selectCountBbs(bbsid);
+	}
+
+	@Override
+	public List<Bbs> getBbsList(int bbsid, int page, int recordsPerPage) {
+		return bbsMapper.selectBbs(bbsid, page, recordsPerPage);
+	}
+
+	@Override
+	public List<Bbs> getSerchBbsList(int bbsid, int page, int recordsPerPage, String key, String val) {
+		
+		return bbsMapper.selectSearchBbs(bbsid, page, recordsPerPage, key, val);
+	}
+
+
 }

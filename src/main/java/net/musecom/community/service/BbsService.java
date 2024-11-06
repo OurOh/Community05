@@ -5,9 +5,13 @@ import java.util.List;
 import net.musecom.community.model.Bbs;
 
 public interface BbsService {
+
+	void getBbsInsert(Bbs bbs, List<Long> fileIds); 
 	
-	int getBbsInsert(Bbs bbs);
-	List<Bbs> getbbsList(int page, int recordPerPage);
-	List<Bbs> getSerchbbsList(int page, int recordPerPage, String key, String val);
+	int getBbsCount(int bbsid);
+	int getSearchBbsCount()
+	List<Bbs> getBbsList(int bbsid, int page, int recordsPerPage);
+	List<Bbs> getSerchBbsList(int bbsid, int page, int recordsPerPage, String key, String val);
+	
 	
 }

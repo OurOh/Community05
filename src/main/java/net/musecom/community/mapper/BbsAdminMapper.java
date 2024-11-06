@@ -11,6 +11,7 @@ import net.musecom.community.model.BbsCategory;
 public interface BbsAdminMapper {
    int insertBbsAdmin(BbsAdmin dto);
    int updateBbsAdmin(BbsAdmin dto);
+   int fileUpdateBbsAdmin(BbsAdmin dto);
    int deleteBbsAdmin(int id);
    BbsAdmin selectById(int id);
    List<BbsAdmin> selectList();

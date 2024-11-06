@@ -20,4 +20,7 @@ public class Bbs {
   private Timestamp wdate;
   private byte sec;
   private String category;
+  
+  
+  
 }
