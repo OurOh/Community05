@@ -42,7 +42,7 @@ public class MemberDaoImpl implements MemberDao {
 
 	@Override
 	public void insertMemRole(MemberRole rdto) {
-		
+		mem.setInsertRole(rdto);
 	}
 
 }

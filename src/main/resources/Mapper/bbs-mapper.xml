@@ -18,7 +18,7 @@
   <!-- 게시물 수정 -->
   
   <!-- 게시물 삭제 -->
-  
+
   <!-- 전체 목록 갯수 조회 --> 
   <select id="selectCountBbs" parameterType="int" resultType="int">
     SELECT count(*) FROM bbs where bbsid=#{bbsid}

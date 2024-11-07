@@ -6,17 +6,91 @@
 
 <script src="/community/res/js/summernote-bs5.min.js"></script>
 <script src="/community/res/js/lang/summernote-ko-KR.js"></script> 
-<c:if test="${adminBbs.rgrade > member.grade }">
-  <script>
-   alert("권한이 없습니다.");
-   location.href="/community";
-  </script>  
-</c:if>
+
+<sec:authorize access="isAuthenticated()">
+	<c:if test="${adminBbs.rgrade > member.grade}">
+	  <script>
+	   alert("권한이 없습니다.");
+	   location.href="/community";
+	  </script>  
+	</c:if>
+</sec:authorize>
+<sec:authorize access="!isAuthenticated()">
+   <c:if test="${adminBbs.rgrade  > 0}">
+ 	  <script>
+	   alert("회원전용 입니다. 로그인 하세요.");
+	   location.href="/community";
+	  </script>    
+   </c:if>
+</sec:authorize>
 <script>
+   let totalFileSize = 0;
+   const maxAllFileSize = 50000000;  //나중에 db에서 확인함
+
    $(function(){
 	 $("#content").summernote({
 		 lange: 'ko-KR',
 		 height: 350
+	 });
+	 
+	 $("#upfile").change(function(){
+		 const fileInput = $("#upfile")[0];
+		 const formData = new FormData();
+		 
+		 //파일 선택 확인
+		 if(fileInput.files.length > 0) {
+			formData.append('file', fileInput.files[0]);
+		    formData.append('bbsid', ${adminBbs.id});
+			const fileSize = fileInput.files[0].size;
+			//const csrfToken = $("input[name='${_csrf.parameterName }']").val();
+			//formData.append("${_csrf.parameterName }", csrfToken);
+			
+			$.ajax({
+				url: '/community/bbs/upload',
+				type: 'POST',
+				data: formData,
+				enctype: 'multipart/form-data',
+				processData: false,
+				contentType: false,
+				beforeSend: function(xhr) {
+					xhr.setRequestHeader("${_csrf.headerName}","${_csrf.token}");
+				},
+				success: function(res){
+					console.table(res);
+				    if(res.success){
+				    	totalFileSize += Number(res.fileSize); 
+				    	$("#fileIdField")
+				    	     .append('<input type="hidden" name="fileId[]" value="'+res.fileId+'">');
+
+				    	const uploadfile = '<div class="upload-file">'+ 
+						                   '<a href="'+res.fileUrl+'" target="_blank">'+res.orFileName+'</a>'+
+						                   '</div>';	
+						//업로드 박스에 링크와 파일이름 추가
+				    	$(".uploadinbox").append(uploadfile);
+						
+						//summernote에 이미지 또는 파일 추가
+						if(res.ext.toLowerCase() =='jpg' || res.ext.toLowerCase() == 'png' || res.ext.toLowerCase() == 'gif' || res.ext.toLowerCase()=='svg'){
+							$('#content').summernote('insertImage', res.fileUrl);
+						}else{
+							$('#content').summernote('createLink', {
+								text: res.orFileName,
+								url: res.fileUrl,
+								isNewWindow: true
+							});
+						}
+				    }else{
+				    	alert("파일 업로드에 실패했습니다." + res.error);
+				    }
+									
+				},
+				error: function(){
+					alert("문제가 발생했습니다.");
+				}
+			})
+		 }else{
+			 alert("change론 안되지롱");
+		 }
+		 
 	 });
   });
 </script>
@@ -52,37 +126,31 @@
        <textarea name="content" id="content"></textarea>
     </div>
     
-    <c:if test="${adminBbs.fgrade > 0}">
-    <label class="col-2 text-right py-2 my-2">
-        파일업로드
-    </label>
-    <div class="col-10  py-2 my-2">
-       <input type="file" class="form-control" name="file" id="file" />
-    </div>   
+    <c:if test="${adminBbs.fgrade >= 0}">
+    <div class="col-12 my-2 py-2">
+       <div class="uploadbox">
+          <div class="text-right">
+             <label for="upfile" class="btn btn-success" id="fileupload">파일업로드</label>
+             <input type="file" name="upfile" id="upfile" class="upfile" />
+          </div>
+          <div class="uploadinbox">
+          
+          </div>
+       </div>
+    </div>
     </c:if>
     
     <div class="col-12 text-center  py-2 my-2">
-       <input type="hidden" name="bbsid" value="1" />
+      <input type="hidden" name="bbsAdminId" value="${adminBbs.id }" />
        <input type="hidden" name="writer" value="운영자" />
        <input type="hidden" name="password" value="admin" />
        <input type="hidden" name="userid" value="admin" />
        <input type="hidden" name="sec" value="0" />
+       <input type="hidden" name="admin" value="admin" />
        <input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }" />
+       <div id="fileIdField"></div>
        <button type="reset" class="btn btn-danger me-3"> 취 소 </button>
        <button type="submit" class="btn btn-primary ms-3"> 전 송 </button>
     </div>
-    
 </form>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-

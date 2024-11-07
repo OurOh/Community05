@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import lombok.Data;
 
 @Data
-public class Bbs {
+public class Bbs extends BbsExtends{
   private Long id;
   private int bbsid;
   private int ref;
@@ -20,7 +20,5 @@ public class Bbs {
   private Timestamp wdate;
   private byte sec;
   private String category;
-  
-  
-  
+  private int hit;
 }

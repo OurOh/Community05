@@ -24,10 +24,13 @@ public class BbsServiceImpl implements BbsService {
 		long bId = bbs.getId();
 		bbsMapper.refUpdateById(bId, bId);
 		System.out.println("게시물 아이디: " + bId);
-		for (Long fileId : fileIds) {
-			System.out.println(fileId);
-			fileMapper.updateFileByBbsId(bId, fileId);
-		}
+		
+		if(fileIds != null && !fileIds.isEmpty()) {
+			for (Long fileId : fileIds) {
+				System.out.println(fileId);
+				fileMapper.updateFileByBbsId(bId, fileId);
+			}
+		}			
 	}
 
 	@Override
@@ -36,15 +39,22 @@ public class BbsServiceImpl implements BbsService {
 		return bbsMapper.selectCountBbs(bbsid);
 	}
 
+
 	@Override
 	public List<Bbs> getBbsList(int bbsid, int page, int recordsPerPage) {
 		return bbsMapper.selectBbs(bbsid, page, recordsPerPage);
 	}
 
 	@Override
-	public List<Bbs> getSerchBbsList(int bbsid, int page, int recordsPerPage, String key, String val) {
-		
+	public List<Bbs> getSerchBbsList(int bbsid, int page, int recordsPerPage, String key, String val) {	
 		return bbsMapper.selectSearchBbs(bbsid, page, recordsPerPage, key, val);
+	}
+	
+
+	@Override
+	public int getSearchBbsCount(int bbsid, String key, String val) {
+		
+		return bbsMapper.selectSearchCountBbs(bbsid, key, val);
 	}
 
 
