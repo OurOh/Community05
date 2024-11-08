@@ -2,16 +2,16 @@
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>    
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>   
-<link rel="stylesheet" href="/community/res/css/summernote-bs5.css" />
+<link rel="stylesheet" href="/comunity/res/css/summernote-bs5.css" />
 
-<script src="/community/res/js/summernote-bs5.min.js"></script>
-<script src="/community/res/js/lang/summernote-ko-KR.js"></script> 
+<script src="/comunity/res/js/summernote-bs5.min.js"></script>
+<script src="/comunity/res/js/lang/summernote-ko-KR.js"></script> 
 
 <sec:authorize access="isAuthenticated()">
 	<c:if test="${adminBbs.rgrade > member.grade}">
 	  <script>
 	   alert("권한이 없습니다.");
-	   location.href="/community";
+	   location.href="/comunity";
 	  </script>  
 	</c:if>
 </sec:authorize>
@@ -19,7 +19,7 @@
    <c:if test="${adminBbs.rgrade  > 0}">
  	  <script>
 	   alert("회원전용 입니다. 로그인 하세요.");
-	   location.href="/community";
+	   location.href="/comunity";
 	  </script>    
    </c:if>
 </sec:authorize>
@@ -46,7 +46,7 @@
 			//formData.append("${_csrf.parameterName }", csrfToken);
 			
 			$.ajax({
-				url: '/community/bbs/upload',
+				url: '/comunity/bbs/upload',
 				type: 'POST',
 				data: formData,
 				enctype: 'multipart/form-data',
@@ -97,10 +97,10 @@
 <div class="p-5 m-5">
 <c:choose>
   <c:when test="${adminBbs.fgrade > 0}">
-     <form class="row" action="/community/bbs/writefile" method="post"  enctype="multipart/form-data">
+     <form class="row" action="/comunity/bbs/writefile" method="post"  enctype="multipart/form-data">
   </c:when>
   <c:otherwise>
-     <form class="row" action="/community/bbs/write" method="post">
+     <form class="row" action="/comunity/bbs/write" method="post">
   </c:otherwise> 
 </c:choose>  
   <c:if test="${adminBbs.category > 0}">
@@ -116,6 +116,28 @@
     </div>
    </c:if>
     
+    <!-- 비회원일때 -->
+    <sec:authorize access="!isAuthenticated()">
+        <label class="col-2 text-right  py-2 my-2">
+           이름 
+        </label>
+        <div class="col-4  py-2 my-2">
+          <input type="text" class="form-control" name="writer" id="writer" />
+        </div>   
+        <label class="col-2 text-right  py-2 my-2">
+           비밀번호 
+        </label>
+        <div class="col-4  py-2 my-2">
+          <input type="password" class="form-control" name="password" id="password" />
+        </div>  
+        <input type="hidden" name="userid" value="guest">
+    </sec:authorize>
+    <!-- 회원일때 -->
+    <sec:authorize access="isAuthenticated()">
+      <input type="hidden" name="writer" value="${member.username }">
+      <input type="hidden" name="userid" value="${member.userid }">
+      <input type="hidden" name="password" value="${member.userid }">
+    </sec:authorize>
     <label class="col-2 text-right  py-2 my-2">
        제목
     </label>
@@ -139,14 +161,14 @@
        </div>
     </div>
     </c:if>
-    
+    <div class="col-12 text-right  py-2 my-2">
+       <label>
+          <input type="checkbox" name="sec" value="1"> 비밀글
+       </label>
+    </div>
     <div class="col-12 text-center  py-2 my-2">
-      <input type="hidden" name="bbsAdminId" value="${adminBbs.id }" />
-       <input type="hidden" name="writer" value="운영자" />
-       <input type="hidden" name="password" value="admin" />
-       <input type="hidden" name="userid" value="admin" />
-       <input type="hidden" name="sec" value="0" />
-       <input type="hidden" name="admin" value="admin" />
+     
+       <input type="hidden" name="bbsAdminId" value="${adminBbs.id }" />
        <input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }" />
        <div id="fileIdField"></div>
        <button type="reset" class="btn btn-danger me-3"> 취 소 </button>

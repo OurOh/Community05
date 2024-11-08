@@ -1,9 +1,6 @@
 package net.musecom.community.controller;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,9 +12,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,11 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import net.musecom.community.model.Bbs;
@@ -39,6 +31,7 @@ import net.musecom.community.model.FileDto;
 import net.musecom.community.model.Member;
 import net.musecom.community.service.BbsAdminService;
 import net.musecom.community.service.BbsService;
+import net.musecom.community.service.ContentsControll;
 import net.musecom.community.service.FileService;
 import net.musecom.community.service.MemberService;
 import net.musecom.community.util.Paging;
@@ -62,6 +55,20 @@ public class BbsController {
 	@Autowired
 	private ServletContext sc;
 
+	@Autowired
+	private ContentsControll contentsControll;  //html 태그 정리를 위한 클래스
+	
+	
+	/****************************************************************************
+	 * list
+	 * @param bbsid
+	 * @param page
+	 * @param searchKey
+	 * @param searchVal
+	 * @param model
+	 * @return
+	 */
+	
 	@GetMapping("/list")
 	public String List(
 		@RequestParam("bbsid") int bbsid, 
@@ -73,19 +80,20 @@ public class BbsController {
 		BbsAdmin bbsAdminDto = new BbsAdmin();
 		bbsAdminDto = adminService.getBbsAdminData(bbsid);
 		
+		/*** 권한 검증 **/
 		if(bbsAdminDto.getLgrade() > 0) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if(authentication instanceof AnonymousAuthenticationToken) {
 				//익명 사용자이며 게시판이 회원제일 경우
 				model.addAttribute("error", "회원제입니다. 로그인하세요.");
-				return "redirect: /community/";
+				return "redirect: /comunity/";
 			}else {
 				//인증정보를 이용한 사용자 정보 가져오기
 		        Member member = memberService.getAuthenticatedMember();
 	            if(member.getGrade() < bbsAdminDto.getLgrade()) {
 	            	model.addAttribute("error", "권한이 없습니다.");
 	            	model.addAttribute("member", member);
-	            	return "redirect: /community/";
+	            	return "redirect: /comunity/";
 	            }
 			}
 		}
@@ -95,15 +103,9 @@ public class BbsController {
 			Member member = memberService.getAuthenticatedMember();
 			model.addAttribute("member", member);
 		}
+		      	
 		
-		List<BbsCategory> categories = null;
-        if(bbsAdminDto.getCategory() > 0) {
-        	categories = adminService.getBbsCategoryById(bbsid);
-        }
-          
-        model.addAttribute("categories", categories);
-		model.addAttribute("adminBbs", bbsAdminDto);
-        	
+		/******************************************************************/
 		//쓰레기 파일 삭제
 		List<String> fileNames = fileService.selectFileWithBbsIdZero();
 		if(fileNames != null && !fileNames.isEmpty()) {
@@ -124,28 +126,34 @@ public class BbsController {
 				fileService.deleteFileWithBbsIdZero();
 		}	
 		
+		
+		List<BbsCategory> categories = null;
+        if(bbsAdminDto.getCategory() > 0) {
+        	categories = adminService.getBbsCategoryById(bbsid);
+        }
+          
+        model.addAttribute("categories", categories);
+		model.addAttribute("adminBbs", bbsAdminDto);
+		
 		String skin = bbsAdminDto.getSkin();
 		int listCount = bbsAdminDto.getListcount();
 		int pageCount = bbsAdminDto.getPagecount();
 		int pg = (page -1) * listCount;
-		int totalRecord = 0;
-		String fname = null;
 		
-		if(searchKey != null && searchVal != null) {
-		   totalRecord = bbsService.getSearchBbsCount(bbsid, searchKey, searchVal);	
-		}else {
-		   totalRecord = bbsService.getBbsCount(bbsid);
-		}
+		int totalRecord = ((searchKey != null && !searchKey.isEmpty()) && 
+		   (searchVal != null && !searchVal.isEmpty())) ?
+		      bbsService.getSearchBbsCount(bbsid, searchKey, searchVal)	
+	          :bbsService.getBbsCount(bbsid);
 		
 		Paging paging = new Paging(totalRecord, listCount, page, pageCount);
 		
-		List<Bbs> bbslist = null;
-		
-		if(searchKey != null && searchVal != null) {
-		   bbslist = bbsService.getSerchBbsList(bbsid, pg, listCount, searchKey, searchVal);
-		}else {
-		   bbslist = bbsService.getBbsList(bbsid, pg, listCount);
-		}
+		List<Bbs> bbslist = ((searchKey != null && !searchKey.isEmpty()) && 
+				   (searchVal != null && !searchVal.isEmpty()))?
+		     bbsService.getSerchBbsList(bbsid, pg, listCount, searchKey, searchVal)
+		     :bbsService.getBbsList(bbsid, pg, listCount);
+	
+		//게시물 번호
+		long num = paging.getTotalRecords() - pg;
 		
 		for(Bbs bbs : bbslist) {
 			/*
@@ -166,14 +174,13 @@ public class BbsController {
 		    }
 		    bbs.setFileExt(fileExts);
 		    bbs.setNewfilename(filesName);
+		    bbs.setNum(num);
 		    
-		    if(!fileExts.isEmpty()) {
-		       fname = filesName.get(0);	
-		    }else {
-		       fname ="noImage.jpg";	
-		    }
+		    String contents = contentsControll.extractParagraphs(bbs.getContent());
+		    bbs.setContent(contentsControll.cutParagraph(contents, 30));
+		    num--;
 		}
-		model.addAttribute("fname", fname);
+		
 		model.addAttribute("paging", paging);	
 		model.addAttribute("bbslist", bbslist);
 		
@@ -188,6 +195,13 @@ public class BbsController {
 		}
 	}
 	
+	
+	/*****************************************************************************]
+	 * write get
+	 * @param id
+	 * @param model
+	 * @return
+	 */
 	@GetMapping("/write")
 	public String writeForm(@RequestParam("bbsid") int id, Model model ) {
 		
@@ -211,6 +225,22 @@ public class BbsController {
 		return "bbs.write";
 	}
 	
+	
+	/***************************************************************************
+	 * write post
+	 * @param bbsid
+	 * @param fileIds
+	 * @param title
+	 * @param content
+	 * @param writer
+	 * @param password
+	 * @param sec
+	 * @param userid
+	 * @param category
+	 * @param admin
+	 * @param model
+	 * @return
+	 */
 	@PostMapping("/write")
 	public String writeAction(
 		@RequestParam("bbsAdminId") int bbsid,	
@@ -222,7 +252,6 @@ public class BbsController {
         @RequestParam("sec") byte sec,
         @RequestParam("userid") String userid,
         @RequestParam(name = "category", required = false) String category,
-        @RequestParam("admin") String admin,
         Model model) {
 		System.out.println("게시판 글쓰기 writeAction()");
 		try {
@@ -238,14 +267,14 @@ public class BbsController {
 	        
 			bbsService.getBbsInsert(bbs, fileIds);
 			
-			if(admin.equals("admin")) {
+			if(userid.equals("admin")) {
 			     return "redirect:/admin/write";
 			}else {
 				return "redirect:/bbs/list?bbsid="+bbsid;
 			}
 		}catch(Exception e) {
 		    model.addAttribute("error", "글 작성중 오류가 발생했습니다." + e.getMessage());
-			if(admin.equals("admin")) {
+			if(userid.equals("admin")) {
 			     return "redirect:/admin/write";
 			}else {
 				return "redirect:/bbs/list?bbsid="+bbsid;
@@ -253,7 +282,12 @@ public class BbsController {
 		}
 	}
 	
-	
+	/******************************************************************************
+	 * upload
+	 * @param file
+	 * @param bbsid
+	 * @return
+	 */
 	
 	@PostMapping("/upload")
 	public ResponseEntity<Map<String, Object>> uploadFile(
@@ -278,7 +312,7 @@ public class BbsController {
         	result.put("fileName", fileDto.getNewfilename());
         	result.put("orFileName", fileDto.getOrfilename());
         	result.put("fileSize", fileDto.getFilesize());
-        	result.put("fileUrl", "/community/res/upload/"+path+"/"+fileDto.getNewfilename());
+        	result.put("fileUrl", "/comunity/res/upload/"+path+"/"+fileDto.getNewfilename());
         	result.put("ext", fileDto.getExt());
         	
         }catch(Exception e) {
@@ -299,7 +333,7 @@ public class BbsController {
 			@PathVariable("bbsId") int bbsId,
 			@PathVariable("fname") String fname){
 		try {
-			Path imagePath = Paths.get("/community/res/upload/"+bbsId+"/"+fname);
+			Path imagePath = Paths.get("/comunity/res/upload/"+bbsId+"/"+fname);
 			Resource resource = new UrlResource(imagePath.toUri().toURL());
 			return ResponseEntity.ok()
 				   .contentType(MediaType.IMAGE_JPEG)

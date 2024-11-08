@@ -8,8 +8,8 @@ body{
 }
 
 h1, h2, h3, h3, h5, h6{
-   font-family: "Gowun Batang", serif;
-   font-weight: bold;
+	font-family: "Gowun Batang", serif;
+	font-weight: bold;
 }
 
 @media (min-width: 1200px) {
@@ -20,46 +20,66 @@ h1, h2, h3, h3, h5, h6{
 
 /********* bbsList ***********/
 .bbslist{
-   width:100%;
-   border-bottom:1px solid #ccc;
+	width:100%;
+	border-bottom:1px solid #ccc;
 }
 .bbslist th{
-   border-top:1px solid #ddd;
-   border-bottom:2px solid #ccc;
-   padding-top:10px;
-   padding-bottom:10px;
-   text-align:center;
-   position:relative;
+	border-top:1px solid #ddd;
+	border-bottom:2px solid #ccc;
+	padding-top:10px;
+	padding-bottom:10px;
+	text-align:center;
+	position:relative;
 }
 .bbslist th:not(:last-child)::after{
-   content:"";
-   width:1px;
-   height:15px;
-   background:#ccc;
-   position:absolute;
-   right:0;
-   top:15px;
+	content:"";
+	width:1px;
+	height:15px;
+	background:#ccc;
+	position:absolute;
+	right:0;
+	top:15px;
 }
 .bbslist th:last-child::after{
-   border:none;
+	border:none;
 }
 .bbslist td{
-   padding:13px 15px;
-   border-bottom:1px dashed #ddd;
+	padding:13px 15px;
+	border-bottom:1px dashed #ddd;
+}
+.bbslist td a{
+	color:#333;
 }
 .btn-box{
-   line-height:70px;
+	line-height:70px;
 }
+
+/*********** card gallery ************/
+
+a.card-gallery{
+	color:#333;
+	background:#fff;
+	box-shadow: 0 0 15px 0 rgba(0,0,0,0.08);
+	text-decoration: none;
+	display:block;
+	transition:all 300ms;
+}
+
+a.card-gallery:hover{
+	box-shadow: 2xp 2px 18px 0 rgba(0,0,0,0.3);
+}
+
+
 /********** write ************/
 .uploadbox{
-   border:1px solid #ccc;
-   background:#ededed;
-   padding:20px;
+	border:1px solid #ccc;
+	background:#ededed;
+	padding:20px;
 }
 .uploadinbox{
-   padding:20px;
-   background:#fff;
+	padding:20px;
+	background:#fff;
 }
 .upfile{
-   display:none;
+	display:none;
 }
