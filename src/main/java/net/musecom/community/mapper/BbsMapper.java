@@ -1,6 +1,7 @@
 package net.musecom.community.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -15,16 +16,25 @@ public interface BbsMapper {
   int updateBbs(Bbs bbs);
   int deleteBbs(long id);
   
-  int selectCountBbs(int bbsid);
+  
+  int selectCountBbs(@Param("bbsid") int bbsid);
+  
   int selectSearchCountBbs(@Param("bbsid") int bbsid, 
-		  				   @Param("key") String key,
-		  				   @Param("val") String val);
+		                   @Param("key") String key, 
+		                   @Param("val") String val);
   
-  List<Bbs> selectBbs(int bbsid, int page, int recordsPerPage);
+  List<Bbs> selectBbs(@Param("bbsid") int bbsid, 
+		              @Param("page") int page, 
+		              @Param("recordsPerPage") int recordsPerPage);
   
-  
-  List<Bbs> selectSearchBbs(int bbsid, int page, int recordsPerPage, String key, String val);
-  
+  List<Bbs> selectSearchBbs(
+		  @Param("bbsid") int bbsid, 
+		  @Param("page") int page, 
+		  @Param("recordsPerPage") int recordsPerPage, 
+		  @Param("key") String key, 
+		  @Param("val") String val);
 
   Bbs viewBbs(int id);
+  
+  List<Map<String, Object>> selectMainLatestPosts();
 }

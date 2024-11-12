@@ -1,6 +1,7 @@
 package net.musecom.community.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,12 @@ public class BbsServiceImpl implements BbsService {
 	public int getSearchBbsCount(int bbsid, String key, String val) {
 		
 		return bbsMapper.selectSearchCountBbs(bbsid, key, val);
+	}
+
+	@Override
+	public List<Map<String, Object>> selectLatestPostsMain() {
+		
+		return bbsMapper.selectMainLatestPosts();
 	}
 
 

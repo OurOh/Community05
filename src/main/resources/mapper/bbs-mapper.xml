@@ -40,7 +40,38 @@
     LIMIT #{page}, #{recordsPerPage}
   </select>
   
+
+  
   
   <!--  상세 조회 -->
+  
+  <!-- 메인페이지 전체 게시물 가져오기 -->
+   <select id="selectMainLatestPosts" resultType="map">
+    <![CDATA[
+     SELECT 
+        ba.id as bbsadmin_id,
+        ba.bbstitle,
+        ba.skin,
+        b.id as bbs_id,
+        b.title,
+        b.writer,
+        b.wdate,
+        b.category,
+        b.hit,
+        b.nn
+     FROM 
+     bbs_admin ba
+     LEFT JOIN ( 
+        SELECT * FROM (
+            SELECT id, bbsid, title, writer, wdate, category, hit,
+                 ROW_NUMBER() OVER (partition by bbsid order by wdate desc) AS nn
+            FROM bbs
+       ) AS subquery 
+       WHERE nn <=6
+    ) b ON ba.id = b.bbsid  
+    ORDER BY ba.id ASC, b.wdate DESC
+    ]]>
+  </select>
+  
   
 </mapper>

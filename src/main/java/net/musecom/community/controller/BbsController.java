@@ -31,7 +31,7 @@ import net.musecom.community.model.FileDto;
 import net.musecom.community.model.Member;
 import net.musecom.community.service.BbsAdminService;
 import net.musecom.community.service.BbsService;
-import net.musecom.community.service.ContentsControll;
+import net.musecom.community.service.ContentsService;
 import net.musecom.community.service.FileService;
 import net.musecom.community.service.MemberService;
 import net.musecom.community.util.Paging;
@@ -56,7 +56,7 @@ public class BbsController {
 	private ServletContext sc;
 
 	@Autowired
-	private ContentsControll contentsControll;  //html 태그 정리를 위한 클래스
+	private ContentsService contentsControll;  //html 태그 정리를 위한 클래스
 	
 	
 	/****************************************************************************
@@ -249,7 +249,7 @@ public class BbsController {
         @RequestParam("content") String content,
         @RequestParam("writer") String writer,
         @RequestParam("password") String password,
-        @RequestParam("sec") byte sec,
+        @RequestParam(name = "sec", required= false ) byte sec,
         @RequestParam("userid") String userid,
         @RequestParam(name = "category", required = false) String category,
         Model model) {
@@ -261,6 +261,7 @@ public class BbsController {
 	        bbs.setBbsid(bbsid);
 	        bbs.setWriter(writer);
 	        bbs.setPassword(password);
+	        
 	        bbs.setSec(sec);
 	        bbs.setUserid(userid);
 	        bbs.setCategory(category);

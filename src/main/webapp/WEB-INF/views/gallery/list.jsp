@@ -30,6 +30,17 @@
            </c:choose>   
             <div class="card-body">
                <h5 class="card-title">${post.title }</h5>
+               <div class="offset-6 col-6 d-flex justify-content-between border-bottom py-2 ">
+               		<div class="date">
+               			${post.formattedDate }
+               		</div> 
+               		<div class="writer">
+               			${post.writer }
+               		</div>
+               		<div class="hit">
+               			${post.hit }
+               		</div>
+               </div>
                <p class="card-text">${post.content}</p>
             </div>
          </a>

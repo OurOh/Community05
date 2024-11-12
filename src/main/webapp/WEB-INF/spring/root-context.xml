@@ -6,9 +6,9 @@
 	<!-- DB설정 -->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/mycomu?serverTimezone=UTC"/>  <!-- 스키마 이름: mycomu -->
+        <property name="url" value="jdbc:mysql://localhost:3306/mycomu?serverTimezone=UTC&amp;useUnicode=true&amp;characterEncoding=utf-8"/>
         <property name="username" value="root"/>
-        <property name="password" value="0321"/>
+        <property name="password" value="Abcd123@"/>
     </bean>
     	
 	<!-- MyBatis SqlSessionFactory -->	

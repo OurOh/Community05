@@ -5,47 +5,56 @@
 <c:if test="${adminBbs.rgrade > member.grade }">
   <script>
    alert("권한이 없습니다.");
-   location.href="/comunity";
+   location.href="/community";
   </script>  
 </c:if>
 <div class="p-5 my-4">
    <h1 class="text-center">${adminBbs.bbstitle }</h1>
-   <table class="bbslist table-hover">
-      <colgroup>
-        <col width="10%">
-        <col width="50%">
-        <col width="15%">
-        <col width="15%">
-        <col width="10%">
-      </colgroup>
-      <thead>
-       <tr>
-         <th>번호</th>
-         <th>제목</th>
-         <th>작성자</th>
-         <th>날짜</th>
-         <th>조회수</th> 
-       </tr>
-      </thead>
-      <tbody>
-        <c:forEach var="post" items="${bbslist }">
-        <!-- 루프 -->
-        <tr>
-           <td class="text-center">${post.id }</td>
-           <td class="ellipsis">
-              <a href="view?id=${post.id}&bbsid=${adminBbs.id }&pg=${paging.currentPage}">${post.title }</a> 
-                <c:forEach var="ext" items="${post.fileExt }">
-                  <span> ${ext } </span>
-                </c:forEach>
-              </td>
-           <td class="ellipsis text-center">${post.writer }</td>
-           <td class="text-center">${post.formattedDate }</td>
-           <td class="text-center">${post.hit }</td>
-        </tr>
-        <!-- /루프 -->
-        </c:forEach>
-      </tbody>
-   </table>
+   <div class="container">
+     <div class="row">
+        <div class="col-md-9">
+        
+        <!-- 기사형 -->
+        <ul class="list-group">
+           <c:forEach var="post" items="${bbslist }">
+           <li class="list-group-items py-3 d-flex border-bottom">
+              <c:if test="${not empty post.newfilename[0] }">
+                 <img class="img-thumb"
+                      src="/community/res/upload/${adminBbs.id }/${post.newfilename[0]}"
+                      style="width:150px;height:150px;object-fit:cover;"
+                 />     
+              </c:if>
+              <div class="card-body">
+                 <h5 class="card-title">${post.title }</h5>
+                 <div class="body-text">${post.content }</div>
+                 <div class="text-conf d-flex align-items-center justify-content-end">
+                    <div class="date">${post.formattedDate }</div>
+                    <div class="writer">${post.writer }</div>
+                    <div class="hit">${post.hit }</div>
+                 </div>
+              </div>
+              
+           </li>
+           </c:forEach>
+        </ul>
+        
+        <div class="text-right btn-box">
+	        <a href="bbs.jsp" class="btn btn-success">목록</a>  
+	        <a href="write?bbsid=${adminBbs.id }" class="btn btn-success">글쓰기</a>
+	    </div> 
+        </div>
+        <div class="col-md-3">
+          <c:if test="${adminBbs.category > 0 }">
+           <h5>** CATEGORY **</h5>
+           <div class="list-group list-group-flush">
+              <c:forEach items="${categories }" var="cate">
+                 <a href="#" class="list-group-item">${cate.categorytext }</a>
+              </c:forEach>
+           </div>
+          </c:if> 
+        </div>
+     </div>
+   </div> 
 
    <div class="search-and-button row my-3">
 	   <div class="col-md-5 searchbox">
@@ -71,10 +80,7 @@
 			</div>
           </form>
        </div>
-	   <div class="col-md-7 text-right btn-box">
-	     <a href="bbs.jsp" class="btn btn-success">목록</a>  
-	     <a href="write?bbsid=${adminBbs.id }" class="btn btn-success">글쓰기</a>
-	   </div>  
+
    </div>
    
    
