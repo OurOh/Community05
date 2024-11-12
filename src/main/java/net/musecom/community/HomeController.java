@@ -1,8 +1,10 @@
 package net.musecom.community;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,10 @@ import net.musecom.community.model.Member;
 
 @Controller
 public class HomeController {
+	
+	@Autowired
+	BbsService 
+	
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(Model model) {
@@ -29,9 +35,17 @@ public class HomeController {
              model.addAttribute("member", member);
 		}
 	
+		
+		List<BbsAdmin> bbsAdminLists = bbsAdminService.getAllBbsList();
+		List<Map<String, Object>> latestPosts = bbsService.selectLatestPostsMain();
+		
+		model.addAttribute("latestPosts", latestPosts);
 		model.addAttribute("userid", userid );
 		
 		return "home";
+		
+		
+		
 	}
 	
 }

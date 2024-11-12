@@ -9,43 +9,56 @@
   </script>  
 </c:if>
 <div class="p-5 my-4">
+
+
+		<ul class="list-group list-group-flush">
+			<c:foreach var="post" items="${bbslist }">
+			<li class="list-group=items py-3 d-flex">
+				<c:if test="${not empty post.newfilename[0] }"
+					<img class="img-thumb"
+						src="/community/res/upload/${adminBbs.id }/ ${post.newfilename[0] }"
+						style="width:150px; height:150px;object-fit:cover;"
+				/>
+				<c:if>
+				<div class="card-body">
+					<h5 class="card-title"> ${post.title } </h5>
+						<div class="body-text"> ${post.content } </div>
+						<div class="text-conf d-flex align-items-center justify-content-end">
+							<div class="date">${post.formattedDate }</div>
+							<div class="date">${post. }
+									
+		
+		
+		</ul>
+
+
+
+
+
+
+
    <h1 class="text-center">${adminBbs.bbstitle }</h1>
-   <table class="bbslist table-hover">
-      <colgroup>
-        <col width="10%">
-        <col width="50%">
-        <col width="15%">
-        <col width="15%">
-        <col width="10%">
-      </colgroup>
-      <thead>
-       <tr>
-         <th>번호</th>
-         <th>제목</th>
-         <th>작성자</th>
-         <th>날짜</th>
-         <th>조회수</th> 
-       </tr>
-      </thead>
-      <tbody>
-        <c:forEach var="post" items="${bbslist }">
-        <!-- 루프 -->
-        <tr>
-           <td class="text-center">${post.id }</td>
-           <td class="ellipsis">
-              <a href="view?id=${post.id}&bbsid=${adminBbs.id }&pg=${paging.currentPage}">${post.title }</a> 
-                <c:forEach var="ext" items="${post.fileExt }">
-                  <span> ${ext } </span>
-                </c:forEach>
-              </td>
-           <td class="ellipsis text-center">${post.writer }</td>
-           <td class="text-center">${post.formattedDate }</td>
-           <td class="text-center">${post.hit }</td>
-        </tr>
-        <!-- /루프 -->
-        </c:forEach>
-      </tbody>
-   </table>
+   <div class="container">
+   	<div class="row">
+   		<div class="col-md-9">
+   		<a href="bbs.jsp" class="btn btn-success">목록</a>  
+	    <a href="write?bbsid=${adminBbs.id }" class="btn btn-success">글쓰기</a>	 	    
+   	</div>	
+   		<div class="col-md-9">		
+   			<c:if text="${adminBbs.category > 0 }">
+   			<h3> ** CATEGORY ** </h3>
+   			<div class="list-group"
+   		</div>	
+   	</div>
+   
+   </div>
+   
+   
+   
+   
+   
+   
+   
 
    <div class="search-and-button row my-3">
 	   <div class="col-md-5 searchbox">
