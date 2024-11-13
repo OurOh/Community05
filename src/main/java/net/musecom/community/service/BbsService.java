@@ -17,4 +17,10 @@ public interface BbsService {
 	//전체 게시글 보기
 	List<Map<String, Object>> selectLatestPostsMain();
 	
+	//전체 게시글 보기
+	@Override
+	public List<Map<String, Object>> selectMainLatestMain(){
+		
+		return bbsMapper.
+	}
 }
