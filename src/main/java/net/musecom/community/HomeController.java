@@ -1,5 +1,6 @@
 package net.musecom.community;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +36,9 @@ public class HomeController {
 	public String home(Model model) {
 		String userid = null;
 		
-		//ÀÎÁõÁ¤º¸¸¦ ÀÌ¿ëÇÑ »ç¿ëÀÚ Á¤º¸ °¡Á®¿À±â
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println("±ÇÇÑ" + auth);
+		System.out.println("ï¿½ï¿½ï¿½ï¿½" + auth);
 		if(auth != null && auth.getPrincipal() instanceof CustomUserDetails) {	
 		     CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
 		     userid = userDetails.getUsername();
@@ -47,11 +48,44 @@ public class HomeController {
 		
 		List<BbsAdmin> bbsAdminLists = bbsAdminService.getAllBbsList();
 		List<Map<String, Object>> latestPosts = bbsService.selectLatestPostsMain();
+		
+		LocalDateTime now = LocalDateTime.now();
+		
+		for(Map<String, Object> post : latestPosts) {
+			//Timestamp wdate = (Timestamp) post.get("wdate");
+			Object wdateObj = post.get("wdate");
+			LocalDateTime dateTime = wdate.toLocalDateTime();
+			//24ì‹œê°„ ì´ë‚´ì´ë©´ ì‹œ:ë¶„í˜•ì‹
+			if(wdateObj instanceof LocalDateTime) {
+				dateTime = (LocalDateTime) wdateObj;
+			}else if(wdateObj instanceof Timestamp) {
+				dateTime = ((Timestamp) wdateObj).toLocalDateTime();
+			}else {
+				continue; // 
+			}
+			
+			if(dateTime.isAfter(now.minusHours(24))) {
+				SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+				post.put("latesttime", dateTime.format(timeFormatter));
+			}else {
+			//24ì‹œê°„ ì´í›„ë©´ ë…„ìš¸ì¼ í˜•í‰
+				post.put("latesttime", dateTime.format(dateFormatter));
+				
+			}
+			
+		}
+		
+		
+		
 		model.addAttribute("bbsAdminLists", bbsAdminLists );
 		model.addAttribute("latestPosts", latestPosts);
 		model.addAttribute("userid", userid );
 		
 		return "main.home";
 	}
+	
+	
+	
+	
 	
 }
