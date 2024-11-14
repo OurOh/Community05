@@ -56,7 +56,7 @@ public class BbsController {
 	private ServletContext sc;
 
 	@Autowired
-	private ContentsService contentsControll;  //html ÅÂ±× Á¤¸®¸¦ À§ÇÑ Å¬·¡½º
+	private ContentsService contentsControll;  //html ï¿½Â±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 	
 	
 	/****************************************************************************
@@ -80,25 +80,25 @@ public class BbsController {
 		BbsAdmin bbsAdminDto = new BbsAdmin();
 		bbsAdminDto = adminService.getBbsAdminData(bbsid);
 		
-		/*** ±ÇÇÑ °ËÁõ **/
+		/*** ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ **/
 		if(bbsAdminDto.getLgrade() > 0) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if(authentication instanceof AnonymousAuthenticationToken) {
-				//ÀÍ¸í »ç¿ëÀÚÀÌ¸ç °Ô½ÃÆÇÀÌ È¸¿øÁ¦ÀÏ °æ¿ì
-				model.addAttribute("error", "È¸¿øÁ¦ÀÔ´Ï´Ù. ·Î±×ÀÎÇÏ¼¼¿ä.");
+				//ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½Ô½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+				model.addAttribute("error", "È¸ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½. ï¿½Î±ï¿½ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½.");
 				return "redirect: /comunity/";
 			}else {
-				//ÀÎÁõÁ¤º¸¸¦ ÀÌ¿ëÇÑ »ç¿ëÀÚ Á¤º¸ °¡Á®¿À±â
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		        Member member = memberService.getAuthenticatedMember();
 	            if(member.getGrade() < bbsAdminDto.getLgrade()) {
-	            	model.addAttribute("error", "±ÇÇÑÀÌ ¾ø½À´Ï´Ù.");
+	            	model.addAttribute("error", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
 	            	model.addAttribute("member", member);
 	            	return "redirect: /comunity/";
 	            }
 			}
 		}
 		
-		//ÀÍ¸í »ç¿ëÀÚ Á¢±Ù °¡´ÉÇÑ °æ¿ì Ã³¸®ÇØ ÁÖ±â
+		//ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
 		if(!(SecurityContextHolder.getContext().getAuthentication() instanceof  AnonymousAuthenticationToken)) {
 			Member member = memberService.getAuthenticatedMember();
 			model.addAttribute("member", member);
@@ -106,7 +106,7 @@ public class BbsController {
 		      	
 		
 		/******************************************************************/
-		//¾²·¹±â ÆÄÀÏ »èÁ¦
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		List<String> fileNames = fileService.selectFileWithBbsIdZero();
 		if(fileNames != null && !fileNames.isEmpty()) {
 			String delFilePath = sc.getRealPath("/res/upload/") + bbsid + "/";
@@ -117,12 +117,12 @@ public class BbsController {
 				System.out.println(fileName);
 				fileDesk = new File(delFilePath + fileName);
 				
-				//ÆÄÀÏÀÌ ¼­¹ö¿¡ ÀÖÀ¸¸é »èÁ¦
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				if(fileDesk.exists() && fileDesk.delete()) {
-					System.out.println(fileDesk + "»èÁ¦Çß½À´Ï´Ù.");
+					System.out.println(fileDesk + "ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
 				}
 			}
-				//ÆÄÀÏ »èÁ¦°¡ ¿Ï·áµÇ¸é tableÀÇ ÄÃ·³ »èÁ¦
+				//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¸ï¿½ tableï¿½ï¿½ ï¿½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½
 				fileService.deleteFileWithBbsIdZero();
 		}	
 		
@@ -152,7 +152,7 @@ public class BbsController {
 		     bbsService.getSerchBbsList(bbsid, pg, listCount, searchKey, searchVal)
 		     :bbsService.getBbsList(bbsid, pg, listCount);
 	
-		//°Ô½Ã¹° ¹øÈ£
+		//ï¿½Ô½Ã¹ï¿½ ï¿½ï¿½È£
 		long num = paging.getTotalRecords() - pg;
 		
 		for(Bbs bbs : bbslist) {
@@ -163,7 +163,7 @@ public class BbsController {
 			Timestamp dateTime = bbs.getWdate();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			bbs.setFormattedDate(sdf.format(dateTime));
-			//ÆÄÀÏÁ¤º¸ Á¶È¸
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¸
 			List<FileDto> files = fileService.getFilesByBbsId(bbs.getId());
 		    List<String> fileExts = new ArrayList<>();
 		    List<String> filesName = new ArrayList<>();
@@ -205,7 +205,7 @@ public class BbsController {
 	@GetMapping("/write")
 	public String writeForm(@RequestParam("bbsid") int id, Model model ) {
 		
-		//ÀÎÁõÁ¤º¸¸¦ ÀÌ¿ëÇÑ »ç¿ëÀÚ Á¤º¸ °¡Á®¿À±â
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		Member member = memberService.getAuthenticatedMember();
 		model.addAttribute("member", member);
 		
@@ -224,6 +224,63 @@ public class BbsController {
         
 		return "bbs.write";
 	}
+	
+	@GetMapping("/view")
+	public String views(
+	@RequestParam("bbsid") int bbsid,
+	@RequestParam("id") long id,
+	@RequestParam(value="page", defaultValue="1") int page,
+	Model model
+			
+	) {
+		
+		Bbs bbsView = bbsService.getBbs(id);
+		model.addAttribute("bbs", bbsView);
+		return "bbs.view";
+	}
+	
+	
+	@GetMapping("/pass")
+	public String passForm() {
+		
+		return "bbs.pass";
+		
+		
+	}
+	
+	
+	if(!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuth)
+			member = memberService.getAuthenticatedMember();
+			model.addAttribute("member", member);
+	}
+	Bbs bbsView = bbservice.getBbs(id);
+	int sec = bbsView.getSec();
+	
+	if(sec == 1 && member == null ||
+	   sec == 1 && 
+	   
+	   model.addAttribute("adminBbs", bbsAdminDto);
+	   model.addAttribute("bbsid", bbsid);
+	   model.addAttribute("page	, page");
+	   model.addAttribute("bbs", bbsView);
+	   
+	   
+	   
+	@GetMapping("/update"){
+	public String update() {
+		@RequestParam("bbsid")
+		return "bbs.update";
+		
+	}
+			
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/***************************************************************************
@@ -253,7 +310,7 @@ public class BbsController {
         @RequestParam("userid") String userid,
         @RequestParam(name = "category", required = false) String category,
         Model model) {
-		System.out.println("°Ô½ÃÆÇ ±Û¾²±â writeAction()");
+		System.out.println("ï¿½Ô½ï¿½ï¿½ï¿½ ï¿½Û¾ï¿½ï¿½ï¿½ writeAction()");
 		try {
 	        Bbs bbs = new Bbs();
 	        bbs.setTitle(title);
@@ -274,7 +331,7 @@ public class BbsController {
 				return "redirect:/bbs/list?bbsid="+bbsid;
 			}
 		}catch(Exception e) {
-		    model.addAttribute("error", "±Û ÀÛ¼ºÁß ¿À·ù°¡ ¹ß»ýÇß½À´Ï´Ù." + e.getMessage());
+		    model.addAttribute("error", "ï¿½ï¿½ ï¿½Û¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½." + e.getMessage());
 			if(userid.equals("admin")) {
 			     return "redirect:/admin/write";
 			}else {
@@ -326,7 +383,7 @@ public class BbsController {
 	}
 
 
-	//ÀÌ¹ÌÁö °æ·Î ¹ÝÈ¯ÇÏ±â
+	//ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ï±ï¿½
 	/*
 	@GetMapping("/res/upload/{bbsId}/{fname}")
 	@ResponseBody

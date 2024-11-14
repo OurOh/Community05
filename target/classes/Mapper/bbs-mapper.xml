@@ -40,10 +40,17 @@
     LIMIT #{page}, #{recordsPerPage}
   </select>
   
+  
+  <!-- 조회수 카운트 -->
+  <update id="updateHit">
+  	UPDATE bbs SET hit = hit + 1 WHERE id=#{id}
+  </update>
 
-  
-  
   <!--  상세 조회 -->
+  <select id = "viewBbs resultType="bbs">
+  	Select * from bbs where id=#{id}
+  </select>
+
   
   <!-- 메인페이지 전체 게시물 가져오기 -->
    <select id="selectMainLatestPosts" resultType="map">

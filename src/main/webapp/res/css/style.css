@@ -19,6 +19,29 @@ h1, h2, h3, h3, h5, h6{
 }
 
 
+
+.infobox div:not(:last-child)::after{
+	content:"";
+	display:block;
+	position:absolute;
+	width:2px;
+	height:15px;
+	right:0;
+	top:0;
+	background-color: 1px solid rgba(0,0,0,0.125);
+	padding-left:20px
+	
+}
+
+.password{
+	margin-bottom""
+}
+
+
+
+
+
+
 /********* bbsList ***********/
 .bbslist{
 	width:100%;
@@ -34,7 +57,7 @@ h1, h2, h3, h3, h5, h6{
 }
 .bbslist th:not(:last-child)::after{
 	content:"";
-	width:1px;
+	width:1px;                            3
 	height:15px;
 	background:#ccc;
 	position:absolute;

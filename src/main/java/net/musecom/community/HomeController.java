@@ -61,7 +61,7 @@ public class HomeController {
 			}else if(wdateObj instanceof Timestamp) {
 				dateTime = ((Timestamp) wdateObj).toLocalDateTime();
 			}else {
-				continue; // 
+				continue; //
 			}
 			
 			if(dateTime.isAfter(now.minusHours(24))) {
