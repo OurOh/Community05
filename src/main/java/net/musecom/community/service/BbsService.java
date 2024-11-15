@@ -14,7 +14,10 @@ public interface BbsService {
 	List<Bbs> getBbsList(int bbsid, int page, int recordsPerPage);
 	List<Bbs> getSerchBbsList(int bbsid, int page, int recordsPerPage, String key, String val);
 	
-	//ÀüÃ¼ °Ô½Ã±Û º¸±â
+	void updateCount(long id);
+	Bbs getBbs(long id);
+	
+	//ì „ì²´ ê²Œì‹œê¸€ ë³´ê¸°
 	List<Map<String, Object>> selectLatestPostsMain();
 	
 }

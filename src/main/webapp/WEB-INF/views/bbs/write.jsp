@@ -2,16 +2,16 @@
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>    
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>   
-<link rel="stylesheet" href="/comunity/res/css/summernote-bs5.css" />
+<link rel="stylesheet" href="/community/res/css/summernote-bs5.css" />
 
-<script src="/comunity/res/js/summernote-bs5.min.js"></script>
-<script src="/comunity/res/js/lang/summernote-ko-KR.js"></script> 
+<script src="/community/res/js/summernote-bs5.min.js"></script>
+<script src="/community/res/js/lang/summernote-ko-KR.js"></script> 
 
 <sec:authorize access="isAuthenticated()">
 	<c:if test="${adminBbs.rgrade > member.grade}">
 	  <script>
 	   alert("권한이 없습니다.");
-	   location.href="/comunity";
+	   location.href="/community";
 	  </script>  
 	</c:if>
 </sec:authorize>
@@ -19,7 +19,7 @@
    <c:if test="${adminBbs.rgrade  > 0}">
  	  <script>
 	   alert("회원전용 입니다. 로그인 하세요.");
-	   location.href="/comunity";
+	   location.href="/community";
 	  </script>    
    </c:if>
 </sec:authorize>
@@ -46,7 +46,7 @@
 			//formData.append("${_csrf.parameterName }", csrfToken);
 			
 			$.ajax({
-				url: '/comunity/bbs/upload',
+				url: '/community/bbs/upload',
 				type: 'POST',
 				data: formData,
 				enctype: 'multipart/form-data',
@@ -94,13 +94,13 @@
 	 });
   });
 </script>
-<div class="p-5 m-5">
+<div class="p-5 my-3 bg-white shadow-sm rounded">
 <c:choose>
   <c:when test="${adminBbs.fgrade > 0}">
-     <form class="row" action="/comunity/bbs/writefile" method="post"  enctype="multipart/form-data">
+     <form class="row" action="/community/bbs/writefile" method="post"  enctype="multipart/form-data">
   </c:when>
   <c:otherwise>
-     <form class="row" action="/comunity/bbs/write" method="post">
+     <form class="row" action="/community/bbs/write" method="post">
   </c:otherwise> 
 </c:choose>  
   <c:if test="${adminBbs.category > 0}">

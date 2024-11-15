@@ -1,6 +1,8 @@
 package net.musecom.community;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import net.musecom.community.model.BbsAdmin;
 import net.musecom.community.model.CustomUserDetails;
+import net.musecom.community.model.FileDto;
 import net.musecom.community.model.Member;
 import net.musecom.community.service.BbsAdminService;
 import net.musecom.community.service.BbsService;
@@ -36,9 +39,9 @@ public class HomeController {
 	public String home(Model model) {
 		String userid = null;
 		
-		
+		//인증정보를 이용한 사용자 정보 가져오기
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println("����" + auth);
+		System.out.println("권한" + auth);
 		if(auth != null && auth.getPrincipal() instanceof CustomUserDetails) {	
 		     CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
 		     userid = userDetails.getUsername();
@@ -51,31 +54,38 @@ public class HomeController {
 		
 		LocalDateTime now = LocalDateTime.now();
 		
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		
 		for(Map<String, Object> post : latestPosts) {
-			//Timestamp wdate = (Timestamp) post.get("wdate");
 			Object wdateObj = post.get("wdate");
-			LocalDateTime dateTime = wdate.toLocalDateTime();
-			//24시간 이내이면 시:분형식
+			LocalDateTime dateTime; 
 			if(wdateObj instanceof LocalDateTime) {
 				dateTime = (LocalDateTime) wdateObj;
 			}else if(wdateObj instanceof Timestamp) {
 				dateTime = ((Timestamp) wdateObj).toLocalDateTime();
 			}else {
-				continue; //
+				continue; //타입이 않맞으면 다음으로 
 			}
 			
-			if(dateTime.isAfter(now.minusHours(24))) {
-				SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-				post.put("latesttime", dateTime.format(timeFormatter));
-			}else {
-			//24시간 이후면 년울일 형힉
+			//24시간 이내이면 시:분형식
+			if(dateTime.isAfter(now.minusHours(24))){
+			   post.put("latesttime", dateTime.format(timeFormatter));
+			}else {			
+			//24시간 이후면 년월일 형힉
 				post.put("latesttime", dateTime.format(dateFormatter));
-				
+			}	
+			
+			//이미지 뽑기 (각 id의 첫번째 이미지만 뽑음)
+			if("gallery".equals(post.get("skin"))) {
+				long bbsid = (long) post.get("bbs_id");
+				List<FileDto> files = fileService.getFilesByBbsId(bbsid);
+				if(!files.isEmpty()) {
+					post.put("fileFirst", files.get(0));
+				}
 			}
 			
 		}
-		
-		
 		
 		model.addAttribute("bbsAdminLists", bbsAdminLists );
 		model.addAttribute("latestPosts", latestPosts);
@@ -83,9 +93,5 @@ public class HomeController {
 		
 		return "main.home";
 	}
-	
-	
-	
-	
 	
 }

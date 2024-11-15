@@ -24,7 +24,7 @@ public class BbsServiceImpl implements BbsService {
 		bbsMapper.insertBbs(bbs);
 		long bId = bbs.getId();
 		bbsMapper.refUpdateById(bId, bId);
-		System.out.println("°Ô½Ã¹° ¾ÆÀÌµğ: " + bId);
+		System.out.println("ê²Œì‹œë¬¼ ì•„ì´ë””: " + bId);
 		
 		if(fileIds != null && !fileIds.isEmpty()) {
 			for (Long fileId : fileIds) {
@@ -62,6 +62,16 @@ public class BbsServiceImpl implements BbsService {
 	public List<Map<String, Object>> selectLatestPostsMain() {
 		
 		return bbsMapper.selectMainLatestPosts();
+	}
+
+	@Override
+	public void updateCount(long id) {
+		bbsMapper.updateHit(id);
+	}
+
+	@Override
+	public Bbs getBbs(long id) {
+		return bbsMapper.viewBbs(id);
 	}
 
 

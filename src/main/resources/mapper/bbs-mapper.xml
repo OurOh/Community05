@@ -11,28 +11,46 @@
        #{bbsid}, #{id}, #{title}, #{writer}, #{password}, #{userid}, #{content}, #{sec}, #{category}
      )
   </insert>
+  <!--  ref 업데이트 -->
+  <update id="refUpdateById" parameterType="map">
+     UPDATE bbs 
+     SET ref = #{ref}
+     WHERE id=#{id}
+  </update>
+  
+  
+  <!-- 게시물 비번 확인 -->
+  <select id="bbsByPassWord" parameterType="map"resultType="int">
+  	select count(*) from bbs where id=#{id}
+  </select>
+  
+  
   
   
   <!-- 답글 삽입 -->
   
   <!-- 게시물 수정 -->
-  <update id="updateBbs" resultType="int">
-  	UPDATE bbs SET
-  		title = #{title},
-  		writer = #{writer},
-  		content = #{content},
-  		sec = #{sec},
-  		category =#{category},
-  	WHERE	
+  <update id="updateBbs" parameterType="bbs">
+     UPDATE bbs SET 
+       title = #{title},
+       writer = #{writer},
+       content = #{content},
+       sec=#{sec},
+       category=#{category}
+     WHERE id=#{id}
   </update>
-  
-  
-  
   <!-- 게시물 삭제 -->
-
+  
   <!-- 전체 목록 갯수 조회 --> 
   <select id="selectCountBbs" parameterType="int" resultType="int">
     SELECT count(*) FROM bbs where bbsid=#{bbsid}
+  </select>
+  
+  <!-- 검색 게시물 전체 목록 조회 -->
+    <select id="selectSearchCountBbs" parameterType="map" resultType="int">
+    SELECT count(*) FROM bbs 
+    where bbsid=#{bbsid} 
+    AND ${key} LIKE CONCAT('%' , #{val}, '%')
   </select>
   
   <!-- 게시물 페이지에 따른 조회 -->
@@ -46,25 +64,24 @@
   <!-- 검색 조회 -->
   <select id="selectSearchBbs" parameterType="map" resultType="bbs">
     SELECT * FROM bbs
-    WHERE bbsid=#{bbsid} AND #{key} LIKE CONCAT('%' , #{val}, '%')
+    WHERE bbsid=#{bbsid} AND ${key} LIKE CONCAT('%' , #{val}, '%')
     ORDER BY ref DESC, step ASC
     LIMIT #{page}, #{recordsPerPage}
   </select>
   
-  
-  <!-- 조회수 카운트 -->
+  <!--  조회수 카운트 -->
   <update id="updateHit">
-  	UPDATE bbs SET hit = hit + 1 WHERE id=#{id}
+     UPDATE bbs SET hit = hit + 1 WHERE id=#{id}
   </update>
-
+  
   <!--  상세 조회 -->
-  <select id = "viewBbs resultType="bbs">
-  	Select * from bbs where id=#{id}
-  </select>
-
+ <select id="viewBbs" resultType="bbs">
+    Select * from bbs where id=#{id}
+ </select>
+  
   
   <!-- 메인페이지 전체 게시물 가져오기 -->
-   <select id="selectMainLatestPosts" resultType="map">
+  <select id="selectMainLatestPosts" resultType="map">
     <![CDATA[
      SELECT 
         ba.id as bbsadmin_id,
@@ -91,5 +108,38 @@
     ]]>
   </select>
   
+  <!--  검색 결과 bbsid 별로 가져오기 -->
+  <select id="searchBbsPostsGrouped" parameterType="map" resultType="bbs">
+     <![CDATA[
+        SELECT
+          b.id, b.bbsid, b.title, b.writer, b.wdate, b.category, b.hit, ba.bbstitle
+        FROM
+          bbs b
+        LEFT JOIN
+          bbs_admin ba on b.bbsid = ba.id
+        WHERE
+          b.title LIKE CONCAT('%', #{searchVal}, '%')
+          OR b.content LIKE CONCAT('%', #{searchVal}, '%')
+        ORDER BY
+          b.bbsid asc, b.wdate desc
+     ]]>
+  </select>
   
+  <!--  인기검색어 등록 -->
+  <insert id="insertSearchKeyword" parameterType="map">
+     INSERT INTO search_keyword
+     (keyword, search_count)
+     VALUES
+     (#{keyword}, 1)
+     ON DUPLICATE KEY UPDATE search_count = search_count + 1
+  </insert>
+  
+  
+  <!-- 인기검색어 조회 -->
+  <select id="selectPopularKeywords" resultType="map">
+     SELECT keyword, search_count
+     FROM search_keyword
+     ORDER BY search_count DESC
+     LIMIT 20;
+  </select>
 </mapper>

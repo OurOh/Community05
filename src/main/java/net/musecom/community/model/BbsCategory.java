@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class BbsCategory {
-  private int id;  //±âº» °ª
-  private int bbsid;  //bbsÀÇ ¾ÆÀÌµğ (¿Ü·¡Å°)
-  private String categorytext;  //Ä«Å×°í¸® ³»¿ë
-  private int categorynum;  //Ä«Å×°í¸® ¼ø¼­
+  private int id;  //ê¸°ë³¸ ê°’
+  private long bbsid;  //bbsì˜ ì•„ì´ë””
+  private String categorytext;  //ì¹´í…Œê³ ë¦¬ ë‚´ìš©
+  private int categorynum;  //ì¹´í…Œê³ ë¦¬ ìˆœì„œ
 }

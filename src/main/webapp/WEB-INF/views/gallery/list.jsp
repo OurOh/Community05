@@ -5,7 +5,7 @@
 <c:if test="${adminBbs.rgrade > member.grade }">
   <script>
    alert("권한이 없습니다.");
-   location.href="/comunity";
+   location.href="/community";
   </script>  
 </c:if>
 <div class="p-5 my-4">
@@ -20,7 +20,7 @@
            <c:choose>
               <c:when test="${not empty post.newfilename[0] }">
             <img class="card-img-top" 
-                 src="/comunity/res/upload/${adminBbs.id }/${post.newfilename[0]}" 
+                 src="/community/res/upload/${adminBbs.id }/${post.newfilename[0]}" 
                  alt="${post.newfilename[0]}" 
             />
               </c:when>

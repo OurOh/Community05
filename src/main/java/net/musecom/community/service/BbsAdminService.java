@@ -65,9 +65,9 @@ public class BbsAdminService {
       dto.setComgrade(bbsAdmin.getComgrade());   
       dto.setFilesize(bbsAdmin.getFilesize());   
       dto.setAllfilesize(bbsAdmin.getAllfilesize());   
-       dto.setThimgsize(bbsAdmin.getThimgsize());   
-        dto.setFilechar(bbsAdmin.getFilechar());  
-        dto.setId(id);
+      dto.setThimgsize(bbsAdmin.getThimgsize());   
+      dto.setFilechar(bbsAdmin.getFilechar());  
+      dto.setId(id);
 
         return dto;
    }

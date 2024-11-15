@@ -2,7 +2,7 @@
             	
     
     
-    <wb-module deploy-name="comunity-1.0.0-BUILD-SNAPSHOT">
+    <wb-module deploy-name="community-1.0.0-BUILD-SNAPSHOT">
                                 
         
         
@@ -23,7 +23,7 @@
         
         
         <property name="java-output-path" value="target/classes"/>
-        <property name="context-root" value="comunity"/>
+        <property name="context-root" value="community"/>
                         	
     
     
