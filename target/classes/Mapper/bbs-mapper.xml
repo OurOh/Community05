@@ -18,13 +18,10 @@
      WHERE id=#{id}
   </update>
   
-  
   <!-- 게시물 비번 확인 -->
-  <select id="bbsByPassWord" parameterType="map"resultType="int">
-  	select count(*) from bbs where id=#{id}
+  <select id="bbsByIdAndPassword" parameterType="map" resultType="int">
+     select count(*) from bbs where id=#{id} and password=#{password}
   </select>
-  
-  
   
   
   <!-- 답글 삽입 -->
@@ -39,7 +36,12 @@
        category=#{category}
      WHERE id=#{id}
   </update>
+  
   <!-- 게시물 삭제 -->
+  <delete id="deleteBbs" parameterType="long">
+    DELETE FROM bbs WHERE id = #{id}
+  </delete>
+  
   
   <!-- 전체 목록 갯수 조회 --> 
   <select id="selectCountBbs" parameterType="int" resultType="int">
@@ -137,8 +139,9 @@
   
   <!-- 인기검색어 조회 -->
   <select id="selectPopularKeywords" resultType="map">
-     SELECT keyword, search_count
+     SELECT keyword, SUM(search_count) AS search_count
      FROM search_keyword
+     GROUP BY keyword
      ORDER BY search_count DESC
      LIMIT 20;
   </select>

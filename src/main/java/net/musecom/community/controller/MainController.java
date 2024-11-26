@@ -1,4 +1,4 @@
-package net.musecom.community.controller;
+                                                                                                                 package net.musecom.community.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,8 +18,9 @@ import net.musecom.community.model.Member;
 import net.musecom.community.model.MemberRole;
 import net.musecom.community.service.ClientIpAddress;
 import net.musecom.community.service.FileUploadService;
+import net.musecom.community.service.InstargramParser;
 
-@Controller
+@Controller                      
 public class MainController {
 
 	@Autowired
@@ -47,7 +48,7 @@ public class MainController {
 			@RequestParam("userpass") String noopuserpass,
 			@RequestParam("username") String username,
 			@RequestParam("useremail") String useremail,
-			@RequestParam("usertel") String usertel,
+			@RequestParam("usertel") String usertel,                                                                                                                                                                                
 			@RequestParam(value="zipcode", required = false) Integer zipcode,
 			@RequestParam("address") String address,
 			@RequestParam("detail_address") String detail_address,
@@ -127,8 +128,16 @@ public class MainController {
 	
 	@GetMapping("/member")
 	public String memberIndex(Model model) {
+		
 		return "member.index";
 	}
 	
 
+	@GetMapping("/insta")
+	public String instagram(@RequestParam("instaid") String instaid, Model model ) {
+		InstargramParser instgramParser = new InstargramParser();
+		model.addAttribute("insta", instgramParser.getStringText(instaid));
+		return "main.insta";
+	}
+	
 }

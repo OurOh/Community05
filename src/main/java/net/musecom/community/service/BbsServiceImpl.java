@@ -1,7 +1,9 @@
 package net.musecom.community.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,6 +74,36 @@ public class BbsServiceImpl implements BbsService {
 	@Override
 	public Bbs getBbs(long id) {
 		return bbsMapper.viewBbs(id);
+	}
+
+	@Override
+	public int getBbsPassword(long id, String password) {
+		return bbsMapper.bbsByIdAndPassword(id, password);
+	}
+
+	@Override
+	public void setDeleteById(long id) {
+		bbsMapper.deleteBbs(id);		
+	}
+
+	@Override
+	public Map<Integer, List<Bbs>> searchBbsPostsGrouped(String searchVal) {
+		List<Bbs> searchResults = bbsMapper.searchBbsPostsGrouped(searchVal);
+		//Stream 을 이용해 searchResults의 결과값 리스트를 bbsid (그룹) 별로 그룹화
+		return searchResults.stream().collect(Collectors.groupingBy(Bbs::getBbsid));
+	}
+
+	@Override
+	public void insertSearchKeyword(String keyword) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("keyword", keyword);
+		bbsMapper.insertSearchKeyword(params);		
+	}
+
+	@Override
+	public List<Map<String, Object>> getPopularKeyword() {
+		// TODO Auto-generated method stub
+		return bbsMapper.selectPopularKeywords();
 	}
 
 

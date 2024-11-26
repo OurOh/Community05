@@ -35,7 +35,7 @@
            <td class="ellipsis">
               <a href="view?id=${post.id}&bbsid=${adminBbs.id }&pg=${paging.currentPage}">${post.title }</a> 
                 <c:forEach var="ext" items="${post.fileExt }">
-                  <span> ${ext } </span>
+                   <span> <img src="/community/res/images/${ext }.svg" width="25"/> </span>
                 </c:forEach>
               </td>
            <td class="ellipsis text-center">${post.writer }</td>

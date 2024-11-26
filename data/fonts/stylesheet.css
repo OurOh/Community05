@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Gowun Dodum';
+    src: url('GowunDodum-Regular.eot');
+    src: url('GowunDodum-Regular.eot?#iefix') format('embedded-opentype'),
+        url('GowunDodum-Regular.woff2') format('woff2'),
+        url('GowunDodum-Regular.woff') format('woff'),
+        url('GowunDodum-Regular.ttf') format('truetype'),
+        url('GowunDodum-Regular.svg#GowunDodum-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

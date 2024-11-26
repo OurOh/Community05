@@ -19,22 +19,20 @@
   </head>
   <body>
      <div class="container"> 
-        <div class="bg-white rounded p-3">      
+        <div class="bg-white rounded p-3  shadow-sm">      
            <tiles:insertAttribute name="header" />
         </div>   
-        <div class="row">
-           <div class="col-md-3 col-12 mt-3">
-              <div class="bg-white rounded p-3">
+        <div class="row align-items-stretch">
+           <div class="col-md-3 col-12 my-3">
+              <div class="aside bg-white rounded p-3 shadow-sm">
                   <tiles:insertAttribute name="aside" />
               </div>
            </div>
-           <div class="col-md-9 col-12 mt-3">
-              <div class="bg-white rounded p-3">
-                  <tiles:insertAttribute name="body" />
-              </div>
+           <div class="col-md-9 col-12">
+                <tiles:insertAttribute name="body" />
            </div>
         </div> 
-        <div class="bg-white rounded p-3 mt-3">  
+        <div class="bg-white rounded p-3 mt-3  shadow-sm">  
           <tiles:insertAttribute name="footer" />
         </div>  
      </div>  

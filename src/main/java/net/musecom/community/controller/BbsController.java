@@ -1,9 +1,6 @@
 package net.musecom.community.controller;
 
 import java.io.File;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,13 +11,11 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,347 +27,316 @@ import net.musecom.community.model.BbsCategory;
 import net.musecom.community.model.FileDto;
 import net.musecom.community.model.Member;
 import net.musecom.community.service.BbsAdminService;
+import net.musecom.community.service.BbsAuthenticationService;
+import net.musecom.community.service.BbsCategoryService;
+import net.musecom.community.service.BbsFileCleanupService;
+import net.musecom.community.service.BbsListService;
 import net.musecom.community.service.BbsService;
 import net.musecom.community.service.ContentsService;
+import net.musecom.community.service.FileDeleteService;
 import net.musecom.community.service.FileService;
 import net.musecom.community.service.MemberService;
+import net.musecom.community.service.PagingService;
 import net.musecom.community.util.Paging;
 
 @Controller
 @RequestMapping("/bbs")
 public class BbsController {
 
-   @Autowired
-   private BbsService bbsService;
-   
-   @Autowired
-   private BbsAdminService adminService;
-   
-   @Autowired
-   private MemberService memberService;
-   
-   @Autowired
-   private FileService fileService;
+	@Autowired
+	private BbsService bbsService;
+	
+	@Autowired
+	private BbsAdminService adminService;
+	
+	@Autowired
+	private MemberService memberService;
+	
+	@Autowired
+	private FileService fileService;
 
-   @Autowired
-   private ServletContext sc;
+	@Autowired
+	private ServletContext sc;
 
-   @Autowired
-   private ContentsService contentsControll;  //html íƒœê·¸ ì •ë¦¬ë¥¼ ìœ„í•œ í´ë˜ìŠ¤
-   
-   
-   /****************************************************************************
-    * list
-    * @param bbsid
-    * @param page
-    * @param searchKey
-    * @param searchVal
-    * @param model
-    * @return
-    */
-   
-   @GetMapping("/list")
-   public String List(
-      @RequestParam("bbsid") int bbsid, 
-      @RequestParam(value="page", defaultValue="1") int page,
-      @RequestParam(required=false) String searchKey,
-      @RequestParam(required=false) String searchVal,
-      Model model) {
-      
-      BbsAdmin bbsAdminDto = new BbsAdmin();
-      bbsAdminDto = adminService.getBbsAdminData(bbsid);
-      
-      /*** ê¶Œí•œ ê²€ì¦ **/
-      if(bbsAdminDto.getLgrade() > 0) {
-         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         if(authentication instanceof AnonymousAuthenticationToken) {
-            //ìµëª… ì‚¬ìš©ìì´ë©° ê²Œì‹œíŒì´ íšŒì›ì œì¼ ê²½ìš°
-            model.addAttribute("error", "íšŒì›ì œì…ë‹ˆë‹¤. ë¡œê·¸ì¸í•˜ì„¸ìš”.");
-            return "redirect: /community/";
-         }else {
-            //ì¸ì¦ì •ë³´ë¥¼ ì´ìš©í•œ ì‚¬ìš©ì ì •ë³´ ê°€ì ¸ì˜¤ê¸°
-              Member member = memberService.getAuthenticatedMember();
-               if(member.getGrade() < bbsAdminDto.getLgrade()) {
-                  model.addAttribute("error", "ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤.");
-                  model.addAttribute("member", member);
-                  return "redirect: /community/";
-               }
-         }
-         
-      }
-      
-      //ìµëª… ì‚¬ìš©ì ì ‘ê·¼ ê°€ëŠ¥í•œ ê²½ìš° ì²˜ë¦¬í•´ ì£¼ê¸°
-      if(!(SecurityContextHolder.getContext().getAuthentication() instanceof  AnonymousAuthenticationToken)) {
-         Member member = memberService.getAuthenticatedMember();
-         model.addAttribute("member", member);
-      }
-               
-      
-      /******************************************************************/
-      //ì“°ë ˆê¸° íŒŒì¼ ì‚­ì œ
-      List<String> fileNames = fileService.selectFileWithBbsIdZero();
-      if(fileNames != null && !fileNames.isEmpty()) {
-         String delFilePath = sc.getRealPath("/res/upload/") + bbsid + "/";
-         System.out.println(delFilePath);
-         
-         File fileDesk = null;
-         for( String fileName : fileNames) {
-            System.out.println(fileName);
-            fileDesk = new File(delFilePath + fileName);
-            
-            //íŒŒì¼ì´ ì„œë²„ì— ìˆìœ¼ë©´ ì‚­ì œ
-            if(fileDesk.exists() && fileDesk.delete()) {
-               System.out.println(fileDesk + "ì‚­ì œí–ˆìŠµë‹ˆë‹¤.");
-            }
-         }
-            //íŒŒì¼ ì‚­ì œê°€ ì™„ë£Œë˜ë©´ tableì˜ ì»¬ëŸ¼ ì‚­ì œ
-            fileService.deleteFileWithBbsIdZero();
-      }   
-      
-      
-      List<BbsCategory> categories = null;
-        if(bbsAdminDto.getCategory() > 0) {
-           categories = adminService.getBbsCategoryById(bbsid);
-        }
-          
+	@Autowired
+	private ContentsService contentsControll;  //html ÅÂ±× Á¤¸®¸¦ À§ÇÑ Å¬·¡½º
+	
+	@Autowired
+	private BbsAuthenticationService autthenticationService;
+	
+	@Autowired
+	private BbsFileCleanupService fileCleanupService;
+	
+	@Autowired
+	private BbsCategoryService categoryService;
+	
+	@Autowired
+	private BbsListService listService;
+	
+	@Autowired
+	private PagingService pagingService;
+	
+	@Autowired
+	private FileDeleteService fileDeleteService;
+	
+	/****************************************************************************
+	 * list
+	 * @param bbsid
+	 * @param page
+	 * @param searchKey
+	 * @param searchVal
+	 * @param model
+	 * @return
+	 */
+	
+	/*  
+	 * 1. ±ÇÇÑ·ÎÁ÷ :  BbsAuthenticationService 
+       2. ¾²·¹±âÆÄÀÏ»èÁ¦ : BbsFileCleanupService
+       3. Ä«Å×°í¸® : BbsCategoryService 
+       4. °Ô½Ã¹°Á¶È¸ ¹× ÆÄÀÏÃ³¸® : BbsListService
+       5. ÆäÀÌÂ¡Ã³¸® : PaginService 
+     */
+	
+	@GetMapping("/list")
+	public String List(
+		@RequestParam("bbsid") int bbsid, 
+		@RequestParam(value="page", defaultValue="1") int page,
+		@RequestParam(required=false) String searchKey,
+		@RequestParam(required=false) String searchVal,
+		Model model) {
+			
+		//±ÇÇÑ°ËÁõ
+		if(!autthenticationService.chechAuthorization(bbsid, model)) {
+			return "redirect: /community/";
+		}
+	  	
+		//¾²·¹±â ÆÄÀÏ »èÁ¦
+		fileCleanupService.cleanFiles(bbsid);
+		
+		//Ä«Å×°í¸® Á¶È¸
+		List<BbsCategory> categories = categoryService.getCategories(bbsid);
         model.addAttribute("categories", categories);
-      model.addAttribute("adminBbs", bbsAdminDto);
-      
-      String skin = bbsAdminDto.getSkin();
-      int listCount = bbsAdminDto.getListcount();
-      int pageCount = bbsAdminDto.getPagecount();
-      int pg = (page -1) * listCount;
-      
-      int totalRecord = ((searchKey != null && !searchKey.isEmpty()) && 
-         (searchVal != null && !searchVal.isEmpty())) ?
-            bbsService.getSearchBbsCount(bbsid, searchKey, searchVal)   
-             :bbsService.getBbsCount(bbsid);
-      
-      Paging paging = new Paging(totalRecord, listCount, page, pageCount);
-      
-      List<Bbs> bbslist = ((searchKey != null && !searchKey.isEmpty()) && 
-               (searchVal != null && !searchVal.isEmpty()))?
-           bbsService.getSerchBbsList(bbsid, pg, listCount, searchKey, searchVal)
-           :bbsService.getBbsList(bbsid, pg, listCount);
-   
-      //ê²Œì‹œë¬¼ ë²ˆí˜¸
-      long num = paging.getTotalRecords() - pg;
-      
-      for(Bbs bbs : bbslist) {
-         /*
-          * LocalDateTime dateTime = bbs.getWdate().toLocalDateTime();
-          * bbs.setFormattedDate(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-          */
-         Timestamp dateTime = bbs.getWdate();
-         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-         bbs.setFormattedDate(sdf.format(dateTime));
-         //íŒŒì¼ì •ë³´ ì¡°íšŒ
-         List<FileDto> files = fileService.getFilesByBbsId(bbs.getId());
-          List<String> fileExts = new ArrayList<>();
-          List<String> filesName = new ArrayList<>();
-          
-          for(FileDto file: files) {
-             fileExts.add(file.getExt());
-             filesName.add(file.getNewfilename());
-          }
-          bbs.setFileExt(fileExts);
-          bbs.setNewfilename(filesName);
-          bbs.setNum(num);
-          
-          String contents = contentsControll.extractParagraphs(bbs.getContent());
-          bbs.setContent(contentsControll.cutParagraph(contents, 100));
-          num--;
-      }
-      
-      model.addAttribute("paging", paging);   
-      model.addAttribute("bbslist", bbslist);
-      
-      if(skin.equals("gallery")) {
-         return "gallery.list";
-      }else if(skin.equals("article")) {
-         return "article.list";
-      }else if(skin.equals("blog")) {
-         return "blog.list";    
-      }else {
-         return "bbs.list";
-      }
-   }
-   
-   /****************************************************************************
-    * VIEW
-    * @param bbsid
-    * @param id
-    * @param pageF
-    */
-   @GetMapping("/view")
-   public String views(
-     @RequestParam("bbsid") int bbsid,
-     @RequestParam("id") long id,
-     @RequestParam(value="page", defaultValue="1") int page,
-     Model model
-   ) { 
+		
+		//°Ô½Ã¹° Á¶È¸ ¹× ÆäÀÌÂ¡ Ã³¸®
+	    BbsAdmin bbsAdminDto = (BbsAdmin) model.getAttribute("adminBbs");
+		int listCount = bbsAdminDto.getListcount();
+		int pageCount = bbsAdminDto.getPagecount();
+		int pg = (page -1) * listCount;
+		
+		int totalRecord = bbsService.getBbsCount(bbsid);
+		Paging paging = pagingService.getPaging(totalRecord, listCount, page, pageCount);
+		
+		List<Bbs> bbslist = listService.getBbsList(bbsid, pg, listCount, searchKey, searchVal);
+		listService.processBbsList(bbslist, totalRecord, pg, 100);
+			
+		model.addAttribute("paging", paging);	
+		model.addAttribute("bbslist", bbslist);
+	
+		//ÀÎ±â°Ë»ö¾î Ãâ·Â
+		List<Map<String, Object>> popularKeywords = bbsService.getPopularKeyword();
+		model.addAttribute("popularKeywords", popularKeywords);
+		
+		String skin = bbsAdminDto.getSkin();
+		
+		switch(skin) {
+		   case "gallery":
+			  return "gallery.list";
+	   	   case "article":
+			  return "article.list";
+		   case "blog":
+			  return "blog.list";
+		   default:
+			  return "bbs.list"; 
+		}
+		
+		/*
+		if(skin.equals("gallery")) {
+		   return "gallery.list";
+		}else if(skin.equals("article")) {
+		   return "article.list";
+		}else if(skin.equals("blog")) {
+		   return "blog.list";	 
+		}else {
+			return "bbs.list";
+		}
+		*/
+	}
+	
+	
+	/****************************************************************************
+	 * VIEW
+	 * @param bbsid
+	 * @param id
+	 * @param pageF
+	 */
+	@GetMapping("/view")
+	public String views(
+	  @RequestParam("bbsid") int bbsid,
+	  @RequestParam("id") long id,
+	  @RequestParam(value="page", defaultValue="1") int page,
+	  Model model
+	) { 
 
-      BbsAdmin bbsAdminDto = new BbsAdmin();
-      bbsAdminDto = adminService.getBbsAdminData(bbsid);
-      Member member = null;
-            
-      /*** ê¶Œí•œ ê²€ì¦ **/
-      if(bbsAdminDto.getLgrade() > 0) {
-         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         if(authentication instanceof AnonymousAuthenticationToken) {
-            //ìµëª… ì‚¬ìš©ìì´ë©° ê²Œì‹œíŒì´ íšŒì›ì œì¼ ê²½ìš°
-            model.addAttribute("error", "íšŒì›ì œì…ë‹ˆë‹¤. ë¡œê·¸ì¸í•˜ì„¸ìš”.");
-            return "redirect: /comunity/";
-         }else {
-            //ì¸ì¦ì •ë³´ë¥¼ ì´ìš©í•œ ì‚¬ìš©ì ì •ë³´ ê°€ì ¸ì˜¤ê¸°
-              member = memberService.getAuthenticatedMember();
-               if(member.getGrade() < bbsAdminDto.getLgrade()) {
-                  model.addAttribute("error", "ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤.");
-                  model.addAttribute("member", member);
-                  return "redirect: /comunity/";
-               }
-         }
-      }
-      
-      //ìµëª… ì‚¬ìš©ì ì ‘ê·¼ ê°€ëŠ¥í•œ ê²½ìš° ì²˜ë¦¬í•´ ì£¼ê¸°
-      if(!(SecurityContextHolder.getContext().getAuthentication() instanceof  AnonymousAuthenticationToken)) {
-         member = memberService.getAuthenticatedMember();
-         model.addAttribute("member", member);
-      }
-      Bbs bbsView = bbsService.getBbs(id);
-      int sec = bbsView.getSec();
-      
-      if( sec == 1 && member == null ||
-         sec == 1 && member.getUserid() == null ||
-         sec == 1 && !"admin".equals(member.getUserid()) &&
-         sec == 1 && !member.getUserid().equals(bbsView.getUserid())) {
-          System.out.println("ë¹„ë°€ê¸€ì´ë¯€ë¡œ passë¡œ ë³´ëƒ„");
-         return "redirect: /comunity/bbs/pass?mode=view&bbsid="+bbsid+"&id="+id+"&page="+page;
-      }   
-      //ì¡°íšŒìˆ˜ ì¦ê°€
-      bbsService.updateCount(id);
-      model.addAttribute("adminBbs", bbsAdminDto);
-       model.addAttribute("bbsid", bbsid);
-       model.addAttribute("page", page);
-      model.addAttribute("bbs", bbsView);
-      return "bbs.view";
-   }
-   
-   @GetMapping("/update")
-   public String update(
-           @RequestParam("bbsid") int bbsid,
-           @RequestParam("id") long id,
-           @RequestParam(value="page", defaultValue="1") int page,
-           Model model,
-           HttpSession session
-      ) {
-      System.out.println("ì—…ë°ì´íŠ¸");
-      BbsAdmin bbsAdminDto = new BbsAdmin();
-      bbsAdminDto = adminService.getBbsAdminData(bbsid);
-      Member member = null;
-      
-      //ì„¸ì…˜ì²´í¬
-      String sessionKey = "bbsAuth_" + id;
-      Boolean isBbsAuthenticated = (Boolean) session.getAttribute(sessionKey);
-      
-      /*** ê¶Œí•œ ê²€ì¦ **/
-      if(bbsAdminDto.getLgrade() > 0) {
-         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         if(authentication instanceof AnonymousAuthenticationToken) {
-            //ìµëª… ì‚¬ìš©ìì´ë©° ê²Œì‹œíŒì´ íšŒì›ì œì¼ ê²½ìš°
-            model.addAttribute("error", "íšŒì›ì œì…ë‹ˆë‹¤. ë¡œê·¸ì¸í•˜ì„¸ìš”.");
-            return "redirect: /comunity/";
-         }else {
-            //ì¸ì¦ì •ë³´ë¥¼ ì´ìš©í•œ ì‚¬ìš©ì ì •ë³´ ê°€ì ¸ì˜¤ê¸°
-              member = memberService.getAuthenticatedMember();
-               if(member.getGrade() < bbsAdminDto.getLgrade()) {
-                  model.addAttribute("error", "ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤.");
-                  model.addAttribute("member", member);
-                  return "redirect: /comunity/";
-               }
-         }
-      }
-      
-      //ìµëª… ì‚¬ìš©ì ì ‘ê·¼ ê°€ëŠ¥í•œ ê²½ìš° ì²˜ë¦¬í•´ ì£¼ê¸°
-      if(!(SecurityContextHolder.getContext().getAuthentication() instanceof  AnonymousAuthenticationToken)) {
-         member = memberService.getAuthenticatedMember();
-         model.addAttribute("member", member);
-      }
-      
-      Bbs bbsView = bbsService.getBbs(id);
-      int sec = bbsView.getSec();
-      
-      if(isBbsAuthenticated == null || !isBbsAuthenticated) {
-         if( member == null || member.getUserid() == null ||
-            !"admin".equals(member.getUserid()) &&
-            !member.getUserid().equals(bbsView.getUserid())) {
-             System.out.println(" passë¡œ ë³´ëƒ„");
-            return "redirect: /community/bbs/pass?mode=edit&bbsid="+bbsid+"&id="+id+"&page="+page;
-         }   
-      }
-      model.addAttribute("adminBbs", bbsAdminDto);
-      model.addAttribute("bbsid", bbsid);
-      model.addAttribute("page", page);
-      model.addAttribute("bbs", bbsView);
-      return "bbs.update";
-   }
-   
-   
-   @GetMapping("/pass")
-   public String passForm() {
-      
-      return "bbs.pass";
-   }
-   
-   
-   /*****************************************************************************]
-    * write get
-    * @param id
-    * @param model
-    * @return
-    */
-   @GetMapping("/write")
-   public String writeForm(@RequestParam("bbsid") int id, Model model ) {
-      
-      //ì¸ì¦ì •ë³´ë¥¼ ì´ìš©í•œ ì‚¬ìš©ì ì •ë³´ ê°€ì ¸ì˜¤ê¸°
-      Member member = memberService.getAuthenticatedMember();
-      model.addAttribute("member", member);
-      
-        BbsAdmin bbsAdminDto = new BbsAdmin();
-      bbsAdminDto = adminService.getBbsAdminData(id);
-      
-      List<BbsCategory> categories = null;
+		BbsAdmin bbsAdminDto = new BbsAdmin();
+		bbsAdminDto = adminService.getBbsAdminData(bbsid);
+		Member member = memberService.getAuthenticatedMember();
+				
+		//±ÇÇÑ°ËÁõ
+		if(!autthenticationService.chechAuthorization(bbsid, model)) {
+			return "redirect: /community/";
+		}
+		
+		Bbs bbsView = bbsService.getBbs(id);
+		int sec = bbsView.getSec();
+		
+		if( sec == 1 && member == null ||
+			sec == 1 && member.getUserid() == null ||
+			sec == 1 && !"admin".equals(member.getUserid()) &&
+			sec == 1 && !member.getUserid().equals(bbsView.getUserid())) {
+		    System.out.println("ºñ¹Ğ±ÛÀÌ¹Ç·Î pass·Î º¸³¿");
+			return "redirect: /community/bbs/pass?mode=view&bbsid="+bbsid+"&id="+id+"&page="+page;
+		}	
+		//Á¶È¸¼ö Áõ°¡
+		bbsService.updateCount(id);
+		
+		//ÆÄÀÏ¾÷·Îµå Ã³¸®
+		List<FileDto> files = fileService.getFilesByBbsId(id);
+		for(FileDto file : files) {
+			System.out.println(file.getNewfilename());		
+		}
+		
+		//Ä«Å×°í¸® Á¶È¸
+		List<BbsCategory> categories = categoryService.getCategories(bbsid);
+        model.addAttribute("categories", categories);
+		
+		//ÀÎ±â°Ë»ö¾î Ãâ·Â
+		List<Map<String, Object>> popularKeywords = bbsService.getPopularKeyword();
+		model.addAttribute("popularKeywords", popularKeywords);
+		
+		model.addAttribute("files", files);
+		model.addAttribute("adminBbs", bbsAdminDto);
+	    model.addAttribute("bbsid", bbsid);
+	    model.addAttribute("page", page);
+		model.addAttribute("bbs", bbsView);
+		return "bbs.view";
+	}
+	
+	@GetMapping("/update")
+	public String update(
+			  @RequestParam("bbsid") int bbsid,
+			  @RequestParam("id") long id,
+			  @RequestParam(value="page", defaultValue="1") int page,
+			  Model model,
+			  HttpSession session
+		) {
+		System.out.println("¾÷µ¥ÀÌÆ®");
+		BbsAdmin bbsAdminDto = new BbsAdmin();
+		bbsAdminDto = adminService.getBbsAdminData(bbsid);
+		Member member = memberService.getAuthenticatedMember();
+		
+		//¼¼¼ÇÃ¼Å©
+		String sessionKey = "bbsAuth_" + id;
+		Boolean isBbsAuthenticated = (Boolean) session.getAttribute(sessionKey);
+		
+		//±ÇÇÑ°ËÁõ
+		if(!autthenticationService.chechAuthorization(bbsid, model)) {
+			return "redirect: /community/";
+		}
+		
+		Bbs bbsView = bbsService.getBbs(id);
+		int sec = bbsView.getSec();
+		
+		if(isBbsAuthenticated == null || !isBbsAuthenticated) {
+			if( member == null || member.getUserid() == null ||
+			   !"admin".equals(member.getUserid()) &&
+			   !member.getUserid().equals(bbsView.getUserid())) {
+			    System.out.println(" pass·Î º¸³¿");
+				return "redirect: /community/bbs/pass?mode=edit&bbsid="+bbsid+"&id="+id+"&page="+page;
+			}	
+		}
+		
+		List<BbsCategory> categories = null;
         if(bbsAdminDto.getCategory() > 0) {
-           categories = adminService.getBbsCategoryById(id);
+        	categories = adminService.getBbsCategoryById(bbsid);
+        }
+                
+		//ÀÎ±â°Ë»ö¾î Ãâ·Â
+		List<Map<String, Object>> popularKeywords = bbsService.getPopularKeyword();
+		model.addAttribute("popularKeywords", popularKeywords);
+        
+        model.addAttribute("categories", categories);
+		model.addAttribute("adminBbs", bbsAdminDto);
+	    model.addAttribute("bbsid", bbsid);
+	    model.addAttribute("page", page);
+		model.addAttribute("bbs", bbsView);
+		return "bbs.update";
+	}
+	
+	@PostMapping("/update")
+	public String updateForm() {
+		
+		return null;
+	}
+	
+	
+	@GetMapping("/pass")
+	public String passForm(Model model) {
+
+		return "bbs.pass";
+	}
+	
+	
+	/*****************************************************************************]
+	 * write get
+	 * @param id
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/write")
+	public String writeForm(@RequestParam("bbsid") int id, Model model ) {
+		
+		//ÀÎÁõÁ¤º¸¸¦ ÀÌ¿ëÇÑ »ç¿ëÀÚ Á¤º¸ °¡Á®¿À±â
+		Member member = memberService.getAuthenticatedMember();
+		model.addAttribute("member", member);
+		
+        BbsAdmin bbsAdminDto = new BbsAdmin();
+		bbsAdminDto = adminService.getBbsAdminData(id);
+		
+		List<BbsCategory> categories = null;
+        if(bbsAdminDto.getCategory() > 0) {
+        	categories = adminService.getBbsCategoryById(id);
         }
         System.out.println("member" + member);
         
+		//ÀÎ±â°Ë»ö¾î Ãâ·Â
+		List<Map<String, Object>> popularKeywords = bbsService.getPopularKeyword();
+		model.addAttribute("popularKeywords", popularKeywords);
         
         model.addAttribute("categories", categories);
-      model.addAttribute("adminBbs", bbsAdminDto);
+		model.addAttribute("adminBbs", bbsAdminDto);
         
-      return "bbs.write";
-   }
-   
-   
-   /***************************************************************************
-    * write post
-    * @param bbsid
-    * @param fileIds
-    * @param title
-    * @param content
-    * @param writer
-    * @param password
-    * @param sec
-    * @param userid
-    * @param category
-    * @param admin
-    * @param model
-    * @return
-    */
-   @PostMapping("/write")
-   public String writeAction(
-      @RequestParam("bbsAdminId") int bbsid,   
+		return "bbs.write";
+	}
+	
+	
+	/***************************************************************************
+	 * write post
+	 * @param bbsid
+	 * @param fileIds
+	 * @param title
+	 * @param content
+	 * @param writer
+	 * @param password
+	 * @param sec
+	 * @param userid
+	 * @param category
+	 * @param admin
+	 * @param model
+	 * @return
+	 */
+	@PostMapping("/write")
+	public String writeAction(
+		@RequestParam("bbsAdminId") int bbsid,	
         @RequestParam(value="fileId[]", required = false) List<Long> fileIds, 
         @RequestParam("title") String title,
         @RequestParam("content") String content,
@@ -382,78 +346,78 @@ public class BbsController {
         @RequestParam("userid") String userid,
         @RequestParam(name = "category", required = false) String category,
         Model model) {
-      System.out.println("ê²Œì‹œíŒ ê¸€ì“°ê¸° writeAction()");
-      try {
-           Bbs bbs = new Bbs();
-           bbs.setTitle(title);
-           bbs.setContent(content);
-           bbs.setBbsid(bbsid);
-           bbs.setWriter(writer);
-           bbs.setPassword(password);
-           bbs.setSec(sec);           
-           bbs.setUserid(userid);
-           bbs.setCategory(category);
-           
-         bbsService.getBbsInsert(bbs, fileIds);
-         
-         if(userid.equals("admin")) {
-              return "redirect:/admin/write";
-         }else {
-            return "redirect:/bbs/list?bbsid="+bbsid;
-         }
-      }catch(Exception e) {
-          model.addAttribute("error", "ê¸€ ì‘ì„±ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤." + e.getMessage());
-         if(userid.equals("admin")) {
-              return "redirect:/admin/write";
-         }else {
-            return "redirect:/bbs/list?bbsid="+bbsid;
-         }
-      }
-   }
-   
-   /**********************
-    * ê²Œì‹œë¬¼ ë¹„ë²ˆ í™•ì¸
-    * @Param id
-    * @Param password
-    * @return int
-    */
-   @PostMapping("/passwd")
-   @ResponseBody
-   public String equalPassword(
-      @RequestParam("id") long id,
-      @RequestParam("password") String password,
-      HttpSession session
-   ) {
-      
-      int r = bbsService.getBbsPassword(id, password);
-      
-      if(r > 0) {
-         //ì„¸ì…˜
-         try {
-            String sessionKey = "bbsAuth_" + id;
-            session.setAttribute(sessionKey, true);
-            
-         }catch(Exception e) {
-            e.printStackTrace();
-         }
-      }
-      
-      String res = Integer.toString(r);
-      return res;
-   }
-   
-   
-   /******************************************************************************
-    * upload
-    * @param file
-    * @param bbsid
-    * @return
-    */
-   
-   @PostMapping("/upload")
-   public ResponseEntity<Map<String, Object>> uploadFile(
-      @RequestParam("file") MultipartFile file, 
-      @RequestParam("bbsid") int bbsid){
+		System.out.println("°Ô½ÃÆÇ ±Û¾²±â writeAction()");
+		try {
+	        Bbs bbs = new Bbs();
+	        bbs.setTitle(title);
+	        bbs.setContent(content);
+	        bbs.setBbsid(bbsid);
+	        bbs.setWriter(writer);
+	        bbs.setPassword(password);
+	        bbs.setSec(sec);	        
+	        bbs.setUserid(userid);
+	        bbs.setCategory(category);
+	        
+			bbsService.getBbsInsert(bbs, fileIds);
+			
+			if(userid.equals("admin") && bbsid==1) {
+			     return "redirect:/admin/write";
+			}     	
+				return "redirect:/bbs/list?bbsid="+bbsid;
+			
+		}catch(Exception e) {
+		    model.addAttribute("error", "±Û ÀÛ¼ºÁß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù." + e.getMessage());
+			if(userid.equals("admin") && bbsid==1) {
+			     return "redirect:/admin/write";
+			}
+			return "redirect:/bbs/list?bbsid="+bbsid;
+			
+		}
+	}
+	
+	/**********************
+	 * °Ô½Ã¹° ºñ¹ø È®ÀÎ
+	 * @Param id
+	 * @Param password
+	 * @return int
+	 */
+	@PostMapping("/passwd")
+	@ResponseBody
+	public String equalPassword(
+	   @RequestParam("id") long id,
+	   @RequestParam("password") String password,
+	   HttpSession session
+	) {
+		
+		int r = bbsService.getBbsPassword(id, password);
+		
+		if(r > 0) {
+			//¼¼¼Ç
+			try {
+				String sessionKey = "bbsAuth_" + id;
+				session.setAttribute(sessionKey, true);
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		String res = Integer.toString(r);
+		return res;
+	}
+	
+	
+	/******************************************************************************
+	 * upload
+	 * @param file
+	 * @param bbsid
+	 * @return
+	 */
+	
+	@PostMapping("/upload")
+	public ResponseEntity<Map<String, Object>> uploadFile(
+		@RequestParam("file") MultipartFile file, 
+		@RequestParam("bbsid") int bbsid){
         Map<String, Object> result = new HashMap<>();
         
         try {
@@ -463,47 +427,199 @@ public class BbsController {
             String path = Integer.toString(bbsid);
             String extFilter = bbsAdmin.getFilechar();
             String[] ext = (extFilter != null && !extFilter.isEmpty()) ?
-                            extFilter.split(",") : null;
+            		          extFilter.split(",") : null;
             long fileSize = bbsAdmin.getFilesize() * 1024 * 1024;
-           
-           fileDto = fileService.uploadFile(file, path, ext, fileSize);
-           
-           result.put("success", true);
-           result.put("fileId", fileDto.getId());
-           result.put("fileName", fileDto.getNewfilename());
-           result.put("orFileName", fileDto.getOrfilename());
-           result.put("fileSize", fileDto.getFilesize());
-           result.put("fileUrl", "/comunity/res/upload/"+path+"/"+fileDto.getNewfilename());
-           result.put("ext", fileDto.getExt());
-           
+        	
+        	fileDto = fileService.uploadFile(file, path, ext, fileSize);
+        	
+        	result.put("success", true);
+        	result.put("fileId", fileDto.getId());
+        	result.put("fileName", fileDto.getNewfilename());
+        	result.put("orFileName", fileDto.getOrfilename());
+        	result.put("fileSize", fileDto.getFilesize());
+        	result.put("fileUrl", "/community/res/upload/"+path+"/"+fileDto.getNewfilename());
+        	result.put("ext", fileDto.getExt());
+        	
         }catch(Exception e) {
-           result.put("success" , false);
-           result.put("fileId", e.getMessage());
-           System.out.println(Arrays.toString(e.getStackTrace()));
+        	result.put("success" , false);
+        	result.put("fileId", e.getMessage());
+        	System.out.println(Arrays.toString(e.getStackTrace()));
         }
 
-      return ResponseEntity.ok(result);
-   }
+		return ResponseEntity.ok(result);
+	}
 
 
-   //ì´ë¯¸ì§€ ê²½ë¡œ ë°˜í™˜í•˜ê¸°
-   /*
-   @GetMapping("/res/upload/{bbsId}/{fname}")
-   @ResponseBody
-   public ResponseEntity<Resource> getImage(
-         @PathVariable("bbsId") int bbsId,
-         @PathVariable("fname") String fname){
-      try {
-         Path imagePath = Paths.get("/comunity/res/upload/"+bbsId+"/"+fname);
-         Resource resource = new UrlResource(imagePath.toUri().toURL());
-         return ResponseEntity.ok()
-               .contentType(MediaType.IMAGE_JPEG)
-               .body(resource);
-      }catch (MalformedURLException e) {
-           e.printStackTrace();
-           return ResponseEntity.notFound().build();
-       }
-   }
-      
-   */
+	//ÀÌ¹ÌÁö °æ·Î ¹İÈ¯ÇÏ±â
+	/*
+	@GetMapping("/res/upload/{bbsId}/{fname}")
+	@ResponseBody
+	public ResponseEntity<Resource> getImage(
+			@PathVariable("bbsId") int bbsId,
+			@PathVariable("fname") String fname){
+		try {
+			Path imagePath = Paths.get("/community/res/upload/"+bbsId+"/"+fname);
+			Resource resource = new UrlResource(imagePath.toUri().toURL());
+			return ResponseEntity.ok()
+				   .contentType(MediaType.IMAGE_JPEG)
+				   .body(resource);
+		}catch (MalformedURLException e) {
+	        e.printStackTrace();
+	        return ResponseEntity.notFound().build();
+	    }
+	}
+		
+	*/
+	
+	
+	@GetMapping("/del")
+	public String DeleteForm(
+			@RequestParam("bbsid") int bbsid, 
+			@RequestParam("id") long id, 
+			@RequestParam(value="page", defaultValue="1") int page,
+			Model model,
+			HttpSession session) {
+	
+	    //½ê¼ÇÃ¼Å©
+		String sessionKey = "bbsAuth_" + id;
+		Boolean isBbsAuthenticated = (Boolean) session.getAttribute(sessionKey);
+		
+		/* °ü¸®ÀÚ ±ÇÇÑÀÌ¸é ¹«Á¶°Ç »èÁ¦, 
+		 * È¸¿ø±ÇÇÑÀÌ¸é ¾ÆÀÌµğ°¡ °°Àº °æ¿ì »èÁ¦, 
+		 * ±×¿Ü´Â ºñ¹øÀ» È®ÀÎÇÏ¿© »èÁ¦ 
+		 * -- 1. ÆÄÀÏÀ» »èÁ¦ ÇÑ ÈÄ 2. db¸¦ »èÁ¦
+		 * */
+		Member member = memberService.getAuthenticatedMember();
+		//±ÇÇÑ°ËÁõ
+		if(!autthenticationService.chechAuthorization(bbsid, model)) {
+			return "redirect: /community/";
+		}
+		
+		Bbs bbsView = bbsService.getBbs(id);
+		
+		if(isBbsAuthenticated == null || !isBbsAuthenticated) {
+			if( member == null || member.getUserid() == null ||
+			   !"admin".equals(member.getUserid()) &&
+			   !member.getUserid().equals(bbsView.getUserid())) {
+			    System.out.println(" pass·Î º¸³¿");
+				return "redirect: /community/bbs/pass?mode=del&bbsid="+bbsid+"&id="+id+"&page="+page;
+			}	
+		}
+		
+		/* 1. Ã·ºÎÆÄÀÏÀÌ ÀÖ´ÂÁö È®ÀÎÇÑ ÈÄ ÀÖÀ¸¸é 
+		   2. Ã·ºÎÆÄÀÏ »èÁ¦
+		   3. ÆÄÀÏdb Áö¿ì±â
+		   4. bbs table »èÁ¦
+		*/   
+		if(fileDeleteService.hasFilesToDelete(id)) {
+			//»èÁ¦·ÎÁ÷
+			fileDeleteService.deleteFile(id, bbsid);
+		}
+		try {
+			bbsService.setDeleteById(id);
+		}catch(Exception e) {
+			e.printStackTrace();
+			return "redirect:list?bbsid="+bbsid;
+		}
+		
+		return "redirect:list?bbsid="+bbsid;
+	}
+	
+	
+	@PostMapping("/deleteFile")
+	@ResponseBody
+	public Map<String, Object> deleteFile(
+	  @RequestBody Map<String, String> request){
+	  Map<String, Object> result = new HashMap<>();
+ 
+	  try {
+		 //ÆÄÀÏ Á¤º¸
+		 long fileId = Long.parseLong(request.get("fileId"));
+	     String bbsId = request.get("bbsId");   
+	     FileDto fileDto = fileService.getFile(fileId); 
+	     if(fileDto == null) {
+	    	 result.put("success", false);
+	    	 result.put("message", "ÆÄÀÏÁ¤º¸¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+	    	 return result;
+	     }
+	       String path = "/community/res/upload/" + bbsId + "/";
+	       String fullPath = path + fileDto.getNewfilename();
+	       File file = new File(fullPath);
+	       
+	       //ÆÄÀÏ»èÁ¦ 
+	       if(file.exists() && file.delete()) {
+	    	   //db »èÁ¦
+	    	   fileService.deleteFile(fileId);
+	    	   result.put("success", true);
+	    	   result.put("message", "¼º°øÀûÀ¸·Î »èÁ¦µÇ¾ú½À´Ï´Ù.");	      
+	       }else{
+		       result.put("success", false);
+		       result.put("message", "ÆÄÀÏ»èÁ¦¿¡ ½ÇÆĞÇß½À´Ï´Ù.");
+	       }
+	       
+	  }catch(Exception e) {
+	       result.put("success", false);
+	       result.put("message", "ÆÄÀÏ»èÁ¦¿¡ ½ÇÆĞÇß½À´Ï´Ù." + e.getMessage());
+	  }
+	  
+	   return result;
+	}
+	
+	
+	
+	@GetMapping("/download")
+	public ResponseEntity<byte[]> downloadFile(
+			@RequestParam("fileId") long fileId,
+			@RequestParam("bbsId") String bbsid) {
+		try {
+		 	//ÆÄÀÏÁ¤º¸
+			FileDto fileDto = (FileDto) fileService.getFile(fileId);
+			
+			//ÆÄÀÏÀÌ ÀÖ´Â °æ·Î
+			//String filePath = "/community/res/upload/"+ bbsid + "/" + fileDto.getNewfilename();
+			String basePath = System.getProperty("catalina.base")+"/wtpwebapps";
+			String filePath = basePath + "/community/res/upload/"+ bbsid + "/" + fileDto.getNewfilename();
+			//System.out.println(filePath);
+			File file = new File(filePath);
+			
+			//ÆÄÀÏÀÌ Á¸ÀçÇÏÁö ¾Ê´Â °æ¿ì ¿¹¿ÜÃ³¸®
+			if(!file.exists()) {
+				throw new RuntimeException("°æ·Î¿¡ ÆÄÀÏÀÌ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.");
+			}
+			
+			//ÆÄÀÏ µ¥ÀÌÅÍ ÀĞ¾î¿À±â
+			byte[] fileContent = java.nio.file.Files.readAllBytes(file.toPath());
+			
+			//ÆÄÀÏ ´Ù¿î·Îµå¸¦ À§ÇÑ Çì´õ ¼³Á¤
+			 String originalFileName = 
+					 new String(fileDto.getOrfilename().getBytes("UTF-8"), 
+							    "ISO-8859-1");
+			
+			return ResponseEntity.ok()
+					.header("Content-Disposition", "attachment;filename=\""+originalFileName+"\"")
+					.header("Content-Type", "application/octet-stream")
+					.body(fileContent);
+					
+		}catch(Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().build();
+		}
+	}
+	
+	@GetMapping("/search")
+    public String search(@RequestParam("searchVal") String searchVal, Model model) {
+		//°Ë»ö ±â·Ï ÀúÀå
+		bbsService.insertSearchKeyword(searchVal);
+		
+		//°Ë»ö ½ÇÇà
+		Map<Integer, List<Bbs>> groupedResults = bbsService.searchBbsPostsGrouped(searchVal);
+		model.addAttribute("groupedResults", groupedResults);
+		model.addAttribute("searchVal", searchVal);
+		
+		//ÀÎ±â°Ë»ö¾î Ãâ·Â
+		List<Map<String, Object>> popularKeywords = bbsService.getPopularKeyword();
+		model.addAttribute("popularKeywords", popularKeywords);
+		
+		return "bbs.searchGroup";
+	}
 }

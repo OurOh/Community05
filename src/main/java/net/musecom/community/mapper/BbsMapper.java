@@ -35,13 +35,16 @@ public interface BbsMapper {
 		  @Param("val") String val);
 
   //게시물 비번 확인
-  int bbsByIdAndPassword(@Param("id"))
-  
-  
+  int bbsByIdAndPassword(@Param("id") long id, @Param("password") String password);
   
   //게시물 조회수 등록 및 보기
   void updateHit(long id);
   Bbs viewBbs(long id);
   
   List<Map<String, Object>> selectMainLatestPosts();
+  
+  //검색
+  List<Bbs> searchBbsPostsGrouped(String searchVal);
+  void insertSearchKeyword(Map<String, Object> params);
+  List<Map<String, Object>> selectPopularKeywords();
 }
